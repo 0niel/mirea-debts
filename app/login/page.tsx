@@ -34,7 +34,7 @@ export default function Login() {
                 // @ts-ignore
                 provider: "mirea",
                 options: {
-                  redirectTo: `http://localhost:3000/auth/callback`,
+                  redirectTo: `${process.env.NEXT_PUBLIC_AUTH_REDIRECT_URL}/auth/callback`,
                 },
               })
             }}
