@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - --accesslog=true
+      - --log.level=INFO
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.constraints=Label(`traefik.constraint-label-stack`,`mirea-debts`)
+      - --entrypoints.mirea_debts_web.address=:80
+      - --entrypoints.mirea_debts_websecure.address=:443
+      # LetsEncrypt Staging Server
+      # - --certificatesResolvers.letsencrypt.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+    #      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+    #      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=mirea_debts_web
+    #      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+    #      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    #      - ./data/letsencrypt:/letsencrypt
+    depends_on:
+      - app
+    networks:
+      - gateway
+      - application
+
+  app:
+    image: ${IMAGE_FRONTEND}
+    restart: unless-stopped
+    networks:
+      - application
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+    labels:
+      - traefik.enable=true
+      - traefik.constraint-label-stack=mirea-debts
+      - traefik.docker.network=application
+      - traefik.http.services.mirea_debts.loadbalancer.server.port=3000
+      #http
+      - traefik.http.routers.mirea_debts_http.entrypoints=mirea_debts_web
+      - traefik.http.routers.mirea_debts_http.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.mirea_debts_http.service=mirea_debts
+      #      - traefik.http.routers.mirea_debts_http.middlewares=mirea_debts_redirect_https
+      # https
+      #      - traefik.http.middlewares.mirea_debts_redirect_https.redirectscheme.scheme=https
+      #      - traefik.http.middlewares.mirea_debts_redirect_https.redirectscheme.permanent=true
+      - traefik.http.routers.mirea_debts_https.entrypoints=mirea_debts_websecure
+      - traefik.http.routers.mirea_debts_https.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.mirea_debts_https.service=mirea_debts
+#      - traefik.http.routers.mirea_debts_https.tls=true
+#      - traefik.http.routers.mirea_debts_https.tls.certresolver=${CERT_RESOLVER}
+
+networks:
+  gateway:
+  application:
