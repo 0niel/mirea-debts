@@ -31,6 +31,7 @@ export default function Login() {
             type="button"
             onClick={() => {
               supabase.auth.signInWithOAuth({
+                // @ts-ignore
                 provider: "mirea",
                 options: {
                   redirectTo: `http://localhost:3000/auth/callback`,
