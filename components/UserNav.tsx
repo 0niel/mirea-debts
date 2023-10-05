@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 
 import { useSupabase } from "@/lib/supabase/supabase-provider"
@@ -35,41 +36,43 @@ export function UserNav() {
     }
   }
 
-  return (
-    data?.data.user && (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>{getInitialsName()}</AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {data?.data.user?.user_metadata.name}{" "}
-                {data?.data.user?.user_metadata.family_name}
-              </p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {data?.data.user?.email}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => {
-              supabase.auth.signOut().then(() => {
-                window.location.reload()
-              })
-            }}
-          >
-            Выйти
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
+  return data?.data.user ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>{getInitialsName()}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {data?.data.user?.user_metadata.name}{" "}
+              {data?.data.user?.user_metadata.family_name}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {data?.data.user?.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => {
+            supabase.auth.signOut().then(() => {
+              window.location.reload()
+            })
+          }}
+        >
+          Выйти
+          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    <Link href="/login">
+      <Button variant="outline">Войти</Button>
+    </Link>
   )
 }
