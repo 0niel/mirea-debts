@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 
 import "./globals.css"
 import SupabaseProvider from "@/lib/supabase/supabase-provider"
+import { Toaster } from "@/components/ui/toaster"
 import { ThemeCommandMenu } from "@/components/ThemeCommandMenu"
 import { UserNav } from "@/components/UserNav"
 
@@ -46,6 +47,7 @@ export default function RootLayout({
                 <main className="flex-1 space-y-4 p-8 pt-6">{children}</main>
               </div>
             </ThemeProvider>
+            <Toaster />
           </body>
         </html>
       </QueryClientProvider>

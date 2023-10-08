@@ -63,8 +63,6 @@ export default function CardsStats({
     name: institutesShortNames.get(institute) ?? institute,
   }))
 
-  console.log(data2)
-
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
@@ -168,17 +166,31 @@ export default function CardsStats({
     </p> */}
             <div className="mt-4 h-[80px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
-                  <Bar
+                <LineChart
+                  data={data}
+                  margin={{
+                    top: 5,
+                    right: 10,
+                    left: 10,
+                    bottom: 0,
+                  }}
+                >
+                  <Line
+                    type="monotone"
+                    strokeWidth={2}
                     dataKey="debts"
+                    activeDot={{
+                      r: 6,
+                      style: { fill: "var(--theme-primary)", opacity: 0.25 },
+                    }}
                     style={
                       {
-                        fill: "var(--theme-primary)",
-                        opacity: 1,
+                        stroke: "var(--theme-primary)",
                         "--theme-primary": `hsl(47.9 95.8% 53.1%)`,
                       } as React.CSSProperties
                     }
                   />
+
                   <XAxis
                     dataKey="name"
                     strokeOpacity={0}
@@ -193,14 +205,13 @@ export default function CardsStats({
                       />
                     }
                   />
-                </BarChart>
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
       </div>
       <div>
-        {/* График доли должников от общего количества студентов */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-normal">

@@ -672,6 +672,51 @@ export interface Database {
           }
         ]
       }
+      retakes: {
+        Row: {
+          created_at: string
+          creator_id: string
+          date: string
+          description: string | null
+          discipline: string
+          id: number
+          is_online: boolean
+          need_statement: boolean
+          place: string
+          teachers: string
+          time_end: string
+          time_start: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string
+          date: string
+          description?: string | null
+          discipline: string
+          id?: number
+          is_online?: boolean
+          need_statement?: boolean
+          place: string
+          teachers: string
+          time_end: string
+          time_start: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          date?: string
+          description?: string | null
+          discipline?: string
+          id?: number
+          is_online?: boolean
+          need_statement?: boolean
+          place?: string
+          teachers?: string
+          time_end?: string
+          time_start?: string
+        }
+        Relationships: []
+      }
       statistics: {
         Row: {
           created_at: string

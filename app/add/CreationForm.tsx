@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
@@ -9,6 +10,7 @@ import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
 import { useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
 
+import { useSupabase } from "@/lib/supabase/supabase-provider"
 import { cn } from "@/lib/utils"
 import {
   AlertDialog,
@@ -50,7 +52,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
+import { toast, useToast } from "@/components/ui/use-toast"
 
 import { Notifications } from "./Notifications"
 
@@ -143,6 +145,10 @@ interface CreationFormProps {
 }
 
 export function CreationForm(props: CreationFormProps) {
+  const { supabase } = useSupabase()
+  const { toast } = useToast()
+  const router = useRouter()
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -154,10 +160,66 @@ export function CreationForm(props: CreationFormProps) {
     control: form.control,
   })
 
-  const [dialogOpen, setDialogOpen] = useState(false)
+  async function onSubmit(data: ProfileFormValues) {
+    const retakes = await supabase
+      .schema("rtu_mirea")
+      .from("retakes")
+      .select("*")
+      .eq("discipline", data.discipline)
 
-  function onSubmit(data: ProfileFormValues) {
-    setDialogOpen(true)
+    if (
+      retakes?.data?.length !== 0 &&
+      retakes?.data?.some(
+        (retake) => retake?.date === data.date.toISOString().split("T")[0]
+      )
+    ) {
+      toast({
+        variant: "destructive",
+        title: "ОЙ! Что-то пошло не так.",
+        description: "Для этого предмета уже назначена пересдача в этот день.",
+      })
+
+      return
+    }
+
+    const teachers = data.teachers
+      .map((teacher) => teacher.value.trim().replace(",", " "))
+      .filter((teacher) => teacher !== "")
+      .join(", ")
+
+    const { error } = await supabase
+      .schema("rtu_mirea")
+      .from("retakes")
+      .insert({
+        place: data.place,
+        discipline: data.discipline,
+        description: data.description,
+        teachers,
+        date: data.date.toISOString().split("T")[0],
+        time_start: data.time_start,
+        time_end: data.time_end,
+        need_statement: data.need_statement,
+        is_online: data.is_online,
+      })
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "ОЙ! Что-то пошло не так.",
+        description: "Произошла ошибка при создании пересдачи.",
+      })
+
+      console.error(error)
+
+      return
+    }
+
+    toast({
+      title: "Успешно!",
+      description: "Пересдача успешно создана.",
+    })
+
+    router.push("/dashboard")
   }
 
   const [filteredDisciplines, setFilteredDisciplines] = useState(
