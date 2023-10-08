@@ -3,16 +3,27 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { addDays, format } from "date-fns"
+import { format } from "date-fns"
 import { ru } from "date-fns/locale"
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
-import { DateRange } from "react-day-picker"
 import { useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { cn } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Command,
   CommandEmpty,
@@ -36,21 +47,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
 
 import { Notifications } from "./Notifications"
 
 const profileFormSchema = z.object({
-  room: z
+  place: z
     .string({
-      required_error: "Введите название аудитории.",
+      required_error: "Введите название аудитории или ссылку на пересдачу.",
     })
     .min(2, {
-      message: "Название аудитории должно содержать минимум 2 символа.",
-    })
-    .max(30, {
-      message: "Слишком длинное названиее аудитории.",
+      message:
+        "Название аудитории или ссылка должно содержать минимум 2 символа.",
     }),
   discipline: z
     .string({
@@ -67,12 +78,22 @@ const profileFormSchema = z.object({
     .min(1, {
       message: "Введите хотя бы одного преподавателя.",
     }),
-  datetime: z.date(),
+  date: z.date({
+    required_error: "Выберите дату и время.",
+  }),
+  time_start: z.string({
+    required_error: "Выберите дату и время.",
+  }),
+  time_end: z.string({
+    required_error: "Выберите дату и время.",
+  }),
+  need_statement: z.boolean().default(false),
+  is_online: z.boolean().default(false),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-function DatePickerWithRange({
+function DatePicker({
   selected,
   setSelected,
   className,
@@ -133,15 +154,10 @@ export function CreationForm(props: CreationFormProps) {
     control: form.control,
   })
 
+  const [dialogOpen, setDialogOpen] = useState(false)
+
   function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+    setDialogOpen(true)
   }
 
   const [filteredDisciplines, setFilteredDisciplines] = useState(
@@ -153,20 +169,56 @@ export function CreationForm(props: CreationFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="room"
+          name="is_online"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Пересдача будет онлайн?</FormLabel>
+                <FormDescription>
+                  Отметьте, если пересдача будет проводиться онлайн.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="place"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Аудитория</FormLabel>
+              <FormLabel>
+                {form.watch("is_online") ? "Ссылка" : "Аудитория"}
+              </FormLabel>
               <FormControl>
-                <Input placeholder="А-123 (В-78)" {...field} />
+                <Input
+                  placeholder={
+                    form.watch("is_online") ? "https://..." : "А-123 (В-78)"
+                  }
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
-                Номер аудитории и кампус (если это важно).
+                {form.watch("is_online") ? (
+                  <>
+                    Вставьте ссылку на пересдачу в Zoom, Webinar или другую
+                    платформу (например, курс в СДО).
+                  </>
+                ) : (
+                  <>Номер аудитории и кампус (если это важно).</>
+                )}
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="discipline"
@@ -239,6 +291,7 @@ export function CreationForm(props: CreationFormProps) {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="description"
@@ -263,8 +316,38 @@ export function CreationForm(props: CreationFormProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="need_statement"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Студенту нужна ведомость/допуск?</FormLabel>
+                <FormDescription>
+                  Отметьте, должен ли студент взять допуск в учебном отделе
+                  института, чтобы присутствовать на пересдаче?
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
         <Notifications />
+
         <div>
+          <div className={cn(fields.length !== 0 && "sr-only")}>
+            <FormLabel>Преподаватели</FormLabel>
+            <FormDescription>
+              Укажите ФИО всех принимающих преподавателей.
+            </FormDescription>
+          </div>
           {fields.map((field, index) => (
             <FormField
               control={form.control}
@@ -296,23 +379,68 @@ export function CreationForm(props: CreationFormProps) {
           </Button>
           <FormMessage />
         </div>
+
         <FormField
           control={form.control}
-          name="datetime"
+          name="date"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Выберите дату</FormLabel>
               <FormControl>
-                <DatePickerWithRange
-                  className="[&>button]:w-[260px]"
-                  setSelected={field.onChange}
-                  selected={field.value}
-                />
+                <div className="flex flex-row space-x-2">
+                  <DatePicker
+                    className="[&>button]:w-[260px]"
+                    setSelected={field.onChange}
+                    selected={field.value}
+                  />
+                </div>
               </FormControl>
             </FormItem>
           )}
         />
 
+        <div className="flex flex-row space-x-2">
+          <FormField
+            control={form.control}
+            name="time_start"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Начало</FormLabel>
+                <FormControl>
+                  <Input
+                    type="time"
+                    id="time"
+                    min="09:00"
+                    max="18:00"
+                    className="w-[100px]"
+                    {...field}
+                    required
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="time_end"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Конец</FormLabel>
+                <FormControl>
+                  <Input
+                    type="time"
+                    id="time"
+                    min="09:00"
+                    max="18:00"
+                    className="w-[100px]"
+                    {...field}
+                    required
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
         <Button type="submit">Создать</Button>
       </form>
     </Form>

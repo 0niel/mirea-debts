@@ -11,13 +11,6 @@ export const createServerSupabaseClient = cache(() =>
   createServerComponentClient<Database, "rtu_mirea">({ cookies })
 )
 
-const createServiceSupabaseClient = cache(() =>
-  createServerComponentClient<Database, "rtu_mirea">(
-    { cookies },
-    { supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY }
-  )
-)
-
 export async function getSession() {
   const supabase = createServerSupabaseClient()
   try {
@@ -38,6 +31,7 @@ export async function getStatistics() {
       .schema("rtu_mirea")
       .from("statistics")
       .select("*")
+      .throwOnError()
     return statistics
   } catch (error) {
     console.error("Error:", error)
@@ -45,12 +39,41 @@ export async function getStatistics() {
   }
 }
 
+export async function getInstituteStudents(institute: string) {
+  const supabase = createServerSupabaseClient()
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .rpc("get_students_by_institute", { _institute: institute })
+      .throwOnError()
+    return data as unknown as number
+  } catch (error) {
+    console.error("Error:", error)
+    return null
+  }
+}
+
+export async function getInstituteDebtors(institute: string) {
+  const supabase = createServerSupabaseClient()
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .rpc("get_debtors_by_institute", { _institute: institute })
+      .throwOnError()
+    return data as unknown as number
+  } catch (error) {
+    console.error("Error:", error)
+    return null
+  }
+}
+
 export async function getUniqueDisciplines() {
-  const supabase = createServiceSupabaseClient()
+  const supabase = createServerSupabaseClient()
   try {
     const { data } = await supabase
       .schema("rtu_mirea")
       .rpc("get_unique_disciplines")
+      .throwOnError()
     return data as unknown as string[]
   } catch (error) {
     console.error("Error:", error)
@@ -59,7 +82,7 @@ export async function getUniqueDisciplines() {
 }
 
 export async function getOwnDebtsDisciplines() {
-  const supabase = createServiceSupabaseClient()
+  const supabase = createServerSupabaseClient()
   const me = await supabase.auth.getUser()
   try {
     const { data } = await supabase
@@ -67,7 +90,7 @@ export async function getOwnDebtsDisciplines() {
       .from("debts_disciplines")
       .select("*")
       .eq("student_uuid", me.data.user?.user_metadata.provider_id)
-    console.log(data)
+      .throwOnError()
     return data
   } catch (error) {
     console.error("Error:", error)

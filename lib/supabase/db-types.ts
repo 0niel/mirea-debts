@@ -34,13 +34,369 @@ export interface Database {
   }
   ovk: {
     Tables: {
-      [_ in never]: never
+      answer_options: {
+        Row: {
+          created_at: string
+          creator_id: string | null
+          id: number
+          poll_id: number
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string | null
+          id?: number
+          poll_id: number
+          text: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string | null
+          id?: number
+          poll_id?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answer_options_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answer_options_poll_id_fkey"
+            columns: ["poll_id"]
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      answers: {
+        Row: {
+          answer_option_id: number
+          created_at: string
+          id: number
+          poll_id: number
+          user_id: string
+        }
+        Insert: {
+          answer_option_id: number
+          created_at?: string
+          id?: number
+          poll_id: number
+          user_id: string
+        }
+        Update: {
+          answer_option_id?: number
+          created_at?: string
+          id?: number
+          poll_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_poll_id_fkey"
+            columns: ["poll_id"]
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          is_active: boolean
+          logo_url: string
+          name: string
+          start_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          is_active?: boolean
+          logo_url: string
+          name: string
+          start_at: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          is_active?: boolean
+          logo_url?: string
+          name?: string
+          start_at?: string
+        }
+        Relationships: []
+      }
+      participants: {
+        Row: {
+          created_at: string
+          event_id: number
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: number
+          id?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: number
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participants_event_id_fkey"
+            columns: ["event_id"]
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participants_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      polls: {
+        Row: {
+          created_at: string
+          creator_id: string | null
+          display_mode: string
+          duration: number | null
+          end_at: string | null
+          event_id: number
+          id: number
+          is_finished: boolean
+          question: string
+          start_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string | null
+          display_mode?: string
+          duration?: number | null
+          end_at?: string | null
+          event_id: number
+          id?: number
+          is_finished?: boolean
+          question: string
+          start_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string | null
+          display_mode?: string
+          duration?: number | null
+          end_at?: string | null
+          event_id?: number
+          id?: number
+          is_finished?: boolean
+          question?: string
+          start_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polls_event_id_fkey"
+            columns: ["event_id"]
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      profiles: {
+        Row: {
+          academic_group: string | null
+          avatar_url: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: number
+          last_name: string
+          second_name: string | null
+          user_id: string
+        }
+        Insert: {
+          academic_group?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: number
+          last_name: string
+          second_name?: string | null
+          user_id: string
+        }
+        Update: {
+          academic_group?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: number
+          last_name?: string
+          second_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      resources: {
+        Row: {
+          created_at: string
+          event_id: number | null
+          id: number
+          name: string
+          svg_icon: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: number | null
+          id?: number
+          name: string
+          svg_icon: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: number | null
+          id?: number
+          name?: string
+          svg_icon?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_event_id_fkey"
+            columns: ["event_id"]
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      superusers: {
+        Row: {
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "superusers_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      users_permissions: {
+        Row: {
+          created_at: string
+          event_id: number
+          id: number
+          is_access_moderator: boolean
+          is_voting_moderator: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: number
+          id?: number
+          is_access_moderator?: boolean
+          is_voting_moderator?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: number
+          id?: number
+          is_access_moderator?: boolean
+          is_voting_moderator?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_permissions_event_id_fkey"
+            columns: ["event_id"]
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_permissions_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_event_id_by_answer_option_id: {
+        Args: {
+          _answer_option_id: number
+        }
+        Returns: number
+      }
+      is_access_moderator: {
+        Args: {
+          _user_id: string
+          _event_id: number
+        }
+        Returns: boolean
+      }
+      is_superuser: {
+        Args: {
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_voting_moderator: {
+        Args: {
+          _user_id: string
+          _event_id: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
@@ -339,8 +695,10 @@ export interface Database {
       }
       students: {
         Row: {
+          academic_email: string | null
           academic_group: string | null
-          directionCode: string | null
+          direction_code: string | null
+          email: string | null
           first_name: string
           id: number
           institute: string | null
@@ -351,8 +709,10 @@ export interface Database {
           student_uuid: string
         }
         Insert: {
+          academic_email?: string | null
           academic_group?: string | null
-          directionCode?: string | null
+          direction_code?: string | null
+          email?: string | null
           first_name: string
           id?: number
           institute?: string | null
@@ -363,8 +723,10 @@ export interface Database {
           student_uuid: string
         }
         Update: {
+          academic_email?: string | null
           academic_group?: string | null
-          directionCode?: string | null
+          direction_code?: string | null
+          email?: string | null
           first_name?: string
           id?: number
           institute?: string | null
@@ -381,8 +743,20 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      get_debtors_by_institute: {
+        Args: {
+          _institute: string
+        }
+        Returns: number
+      }
       get_debts_count: {
         Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_students_by_institute: {
+        Args: {
+          _institute: string
+        }
         Returns: number
       }
       get_unique_debtors_count: {
@@ -391,7 +765,7 @@ export interface Database {
       }
       get_unique_disciplines: {
         Args: Record<PropertyKey, never>
-        Returns: Record<string, unknown>
+        Returns: string[]
       }
     }
     Enums: {

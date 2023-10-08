@@ -3,7 +3,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 
-import { getSession, getStatistics } from "@/lib/supabase/supabase-server"
+import { institutes } from "@/lib/institutes"
+import {
+  getInstituteDebtors,
+  getInstituteStudents,
+  getSession,
+  getStatistics,
+} from "@/lib/supabase/supabase-server"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,9 +26,24 @@ export const dynamic = "force-dynamic"
 export default async function Dashboard() {
   const session = await getSession()
 
-  if (!session?.user) redirect("/login")
+  // if (!session?.user) redirect("/login")
 
   const statistics = await getStatistics()
+
+  const studentsByInstitute = await Promise.all(
+    institutes.map(async (institute) => {
+      const students = await getInstituteStudents(institute)
+      return students ?? 0
+    })
+  )
+
+  const debtorsByInstitute = await Promise.all(
+    institutes.map(async (institute) => {
+      const debtors = await getInstituteDebtors(institute)
+      return debtors ?? 0
+    })
+  )
+
   return (
     <>
       <div className="flex items-center justify-between space-y-2">
@@ -32,7 +53,12 @@ export default async function Dashboard() {
         </div>
       </div>
       <div className="space-y-4">
-        <CardsStats statistics={statistics ?? []} />
+        <CardsStats
+          statistics={statistics ?? []}
+          institutes={institutes}
+          studentsByInstitute={studentsByInstitute}
+          debtorsByInstitute={debtorsByInstitute}
+        />
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="col-span-3">
             <CardHeader>

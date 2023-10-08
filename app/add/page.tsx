@@ -27,6 +27,7 @@ export default async function Add() {
   if (!session?.user) redirect("/login")
 
   const disciplines = await getUniqueDisciplines()
+
   return (
     <>
       <div className="flex items-center justify-between space-y-2">

@@ -36,7 +36,7 @@
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@supabase-cache-helpers/postgrest-react-query": "^1.0.27",
-    "@supabase/auth-helpers-nextjs": "latest",
+    "@supabase/auth-helpers-nextjs": "^0.8.1",
     "@supabase/supabase-js": "latest",
     "@tanstack/react-query": "^4.35.7",
     "@tanstack/react-table": "^8.10.3",
