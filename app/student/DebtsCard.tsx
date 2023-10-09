@@ -70,10 +70,12 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
     <Card>
       <CardHeader>
         <CardTitle>Ваши задолженности</CardTitle>
-        {debts.length && (
+        {debts.length ? (
           <CardDescription>
             Сейчас у вас {debts.length} задолженностей.
           </CardDescription>
+        ) : (
+          <></>
         )}
       </CardHeader>
       <CardContent>
