@@ -84,9 +84,9 @@ export function TelegramConnectionCard({
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Link href={generateDeepLink(user.id)}>
+                <a target="_blank" href={generateDeepLink(user.id)} rel="noopener noreferrer">
                   <Button className="px-3 shadow-none">Перейти к боту</Button>
-                </Link>
+                </a>
               </DialogFooter>
             </DialogContent>
           </Dialog>
