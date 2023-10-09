@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card"
 import CardsStats from "@/components/CardStats"
 import { RecentActivity } from "@/components/RecentActivity"
-import { SelfRetakesTable } from "@/components/SelfRetakesTable"
+import SelfRetakesTable from "@/components/SelfRetakesTable"
 
 export const dynamic = "force-dynamic"
 

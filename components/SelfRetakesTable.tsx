@@ -34,7 +34,7 @@ import {
 import { Skeleton } from "./ui/skeleton"
 import { toast, useToast } from "./ui/use-toast"
 
-export function SelfRetakesTable() {
+export default function SelfRetakesTable() {
   const { supabase } = useSupabase()
   const { toast } = useToast()
 
@@ -76,70 +76,68 @@ export function SelfRetakesTable() {
     window.location.reload()
   }
 
-  return (
-    retakes !== undefined && (
-      <Card className="col-span-3">
-        <CardHeader>
-          <CardTitle>Ваши пересдачи</CardTitle>
-          <CardDescription>
-            Пересдачи, которые вы создали в системе
-          </CardDescription>
-        </CardHeader>
+  return retakes ? (
+    <Card className="col-span-3">
+      <CardHeader>
+        <CardTitle>Ваши пересдачи</CardTitle>
+        <CardDescription>
+          Пересдачи, которые вы создали в системе
+        </CardDescription>
+      </CardHeader>
 
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Предмен</TableHead>
-                <TableHead>Онлайн?</TableHead>
-                <TableHead>Ссылка/аудитория</TableHead>
-                <TableHead>Дата</TableHead>
-                <TableHead>Время начала</TableHead>
-                <TableHead>Время окончания</TableHead>
-                <TableHead>Преподаватели</TableHead>
-                <TableHead>Допуск</TableHead>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Предмен</TableHead>
+              <TableHead>Онлайн?</TableHead>
+              <TableHead>Ссылка/аудитория</TableHead>
+              <TableHead>Дата</TableHead>
+              <TableHead>Время начала</TableHead>
+              <TableHead>Время окончания</TableHead>
+              <TableHead>Преподаватели</TableHead>
+              <TableHead>Допуск</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {retakes?.map((retake) => (
+              <TableRow key={retake.id}>
+                <TableCell>{retake.discipline}</TableCell>
+                <TableCell>{retake.is_online ? "Да" : "Нет"}</TableCell>
+                <TableCell>{retake.place}</TableCell>
+                <TableCell>{retake.date}</TableCell>
+                <TableCell>{retake.time_start}</TableCell>
+                <TableCell>{retake.time_end}</TableCell>
+                <TableCell>{retake.teachers}</TableCell>
+                <TableCell>
+                  {retake.need_statement ? "Нужен" : "Не нужен"}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                      >
+                        <DotsHorizontalIcon className="h-4 w-4" />
+                        <span className="sr-only">Меню</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[160px]">
+                      <DropdownMenuItem onClick={() => handleDelete(retake.id)}>
+                        Удалить
+                        <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {retakes.map((retake) => (
-                <TableRow key={retake.id}>
-                  <TableCell>{retake.discipline}</TableCell>
-                  <TableCell>{retake.is_online ? "Да" : "Нет"}</TableCell>
-                  <TableCell>{retake.place}</TableCell>
-                  <TableCell>{retake.date}</TableCell>
-                  <TableCell>{retake.time_start}</TableCell>
-                  <TableCell>{retake.time_end}</TableCell>
-                  <TableCell>{retake.teachers}</TableCell>
-                  <TableCell>
-                    {retake.need_statement ? "Нужен" : "Не нужен"}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-                        >
-                          <DotsHorizontalIcon className="h-4 w-4" />
-                          <span className="sr-only">Меню</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[160px]">
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(retake.id)}
-                        >
-                          Удалить
-                          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    )
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  ) : (
+    <></>
   )
 }
