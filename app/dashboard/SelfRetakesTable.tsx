@@ -111,7 +111,7 @@ export default function SelfRetakesTable() {
                   <TableCell>{retake.description}</TableCell>
                   <TableCell>{retake.is_online ? "Да" : "Нет"}</TableCell>
                   <TableCell>{retake.place}</TableCell>
-                  <TableCell>{retake.date}</TableCell>
+                  <TableCell>{retake.date.split("-").reverse().join(".")}</TableCell>
                   <TableCell>{retake.time_start}</TableCell>
                   <TableCell>{retake.time_end}</TableCell>
                   <TableCell>{retake.teachers}</TableCell>
