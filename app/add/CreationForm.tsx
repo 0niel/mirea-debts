@@ -421,7 +421,8 @@ export function CreationForm(props: CreationFormProps) {
                     Преподаватели
                   </FormLabel>
                   <FormDescription className={cn(index !== 0 && "sr-only")}>
-                    Укажите ФИО всех принимающих преподавателей.
+                    Укажите ФИО всех принимающих преподавателей. Пустые поля
+                    будут игнорироваться.
                   </FormDescription>
                   <FormControl>
                     <Input {...field} />
@@ -473,7 +474,7 @@ export function CreationForm(props: CreationFormProps) {
                     type="time"
                     id="time"
                     min="09:00"
-                    max="18:00"
+                    max="20:00"
                     className="w-[100px]"
                     {...field}
                     required
@@ -493,7 +494,7 @@ export function CreationForm(props: CreationFormProps) {
                     type="time"
                     id="time"
                     min="09:00"
-                    max="18:00"
+                    max="21:00"
                     className="w-[100px]"
                     {...field}
                     required

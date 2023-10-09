@@ -21,9 +21,6 @@ export default async function Index() {
 
   if (!session?.user) redirect("/login")
 
-  console.log(session.user)
-  console.log(session.user.user_metadata)
-
   if (session.user.email?.includes("@mirea.ru")) {
     return redirect("/dashboard")
   } else {

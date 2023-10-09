@@ -1,8 +1,10 @@
 import { cookies } from "next/headers"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { de } from "date-fns/locale"
 
 import {
+  getAllRetakesByDebtsDisciplines,
   getOwnDebtsDisciplines,
   getSession,
 } from "@/lib/supabase/supabase-server"
@@ -17,9 +19,9 @@ import {
 import { UserNav } from "@/components/UserNav"
 import { YearDebtAlert } from "@/components/YearDebtAlert"
 
-import { DataTable } from "./DataTable"
 import DebtsCard from "./DebtsCard"
-import { Payment, columns } from "./columns"
+import { OnlineEduDisciplinesCard } from "./OnlineEduDisciplinesCard"
+import { SelfRetakesTable } from "./SelfRetakesTable"
 
 export const dynamic = "force-dynamic"
 
@@ -33,6 +35,10 @@ export default async function Student() {
   }
 
   const debts = await getOwnDebtsDisciplines()
+
+  const retakes = await getAllRetakesByDebtsDisciplines(
+    (debts ?? []).map((debt) => debt.name)
+  )
 
   return (
     <>
@@ -48,9 +54,12 @@ export default async function Student() {
         </div>
       </div>
       <div className="space-y-4">
-        <YearDebtAlert />
-        {/* <DataTable columns={columns} data={data} /> */}
-        <DebtsCard debts={debts ?? []} />
+        {/* <YearDebtAlert /> */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <DebtsCard debts={debts ?? []} />
+          <OnlineEduDisciplinesCard />
+        </div>
+        <SelfRetakesTable retakes={retakes} /> *
       </div>
     </>
   )

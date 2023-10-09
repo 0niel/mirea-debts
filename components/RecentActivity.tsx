@@ -16,12 +16,13 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card"
+import { Table, TableBody, TableCell, TableRow } from "./ui/table"
 
 export function RecentActivity() {
   const { supabase } = useSupabase()
 
   const { data: recentActivity, isLoading } = useQuery(
-    ["retakes"],
+    ["recentActivity"],
     async () => {
       const { data } = await supabase
         .schema("rtu_mirea")
@@ -58,11 +59,17 @@ export function RecentActivity() {
       })[]
 
       return d
+    },
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchInterval: false,
     }
   )
 
   return (
-    <Card className="col-span-3">
+    <Card>
       <CardHeader>
         <CardTitle>Последняя активность</CardTitle>
         <CardDescription>
@@ -70,46 +77,51 @@ export function RecentActivity() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-8">
-          {recentActivity?.map((retake) => (
-            <div className="flex items-start" key={retake.id}>
-              <Avatar className="h-9 w-9">
-                <AvatarImage src="/avatars/01.png" alt="Avatar" />
-                <AvatarFallback>
-                  {retake.creator.user.user_metadata.family_name[0]}
-                  {retake.creator.user.user_metadata.name[0]}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="ml-4 space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  {retake.creator.user.user_metadata.name}{" "}
-                  {retake.creator.user.user_metadata.family_name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {retake.creator.user.email}
-                </p>
-              </div>
-              <div>
-                <div className="ml-auto leading-none sm:ml-6">
-                  <p>
-                    создал(а) пересдачу «{retake.discipline}» на{" "}
-                    <span className="font-medium">
-                      {retake.date.replace(/-/g, ".")} в {retake.time_start}
-                    </span>
-                  </p>
-                  <p className="mt-1.5 text-sm leading-none text-muted-foreground">
-                    {new Date(retake.created_at).toLocaleDateString("ru-RU", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Table>
+          <TableBody>
+            {recentActivity?.map((retake) => (
+              <TableRow key={retake.id}>
+                <TableCell>
+                  <div className="flex items-start">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src="/avatars/01.png" alt="Avatar" />
+                      <AvatarFallback>
+                        {retake.creator?.user.user_metadata.family_name[0]}
+                        {retake.creator?.user.user_metadata.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="ml-4 space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {retake.creator?.user.user_metadata.name}{" "}
+                        {retake.creator?.user.user_metadata.family_name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {retake.creator?.user.email}
+                      </p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="ml-auto leading-none sm:ml-6">
+                    <p>
+                      создал(а) пересдачу «{retake.discipline}» на{" "}
+                      <span className="font-medium">
+                        {retake.date.replace(/-/g, ".")} в {retake.time_start}
+                      </span>
+                    </p>
+                    <p className="mt-1.5 text-sm leading-none text-muted-foreground">
+                      {new Date(retake.created_at).toLocaleDateString("ru-RU", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   )

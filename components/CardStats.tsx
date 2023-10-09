@@ -139,6 +139,7 @@ export default function CardsStats({
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-normal">
@@ -211,6 +212,7 @@ export default function CardsStats({
           </CardContent>
         </Card>
       </div>
+
       <div>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

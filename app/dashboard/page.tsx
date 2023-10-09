@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card"
 import CardsStats from "@/components/CardStats"
 import { RecentActivity } from "@/components/RecentActivity"
-import SelfRetakesTable from "@/components/SelfRetakesTable"
+import SelfRetakesTable from "@/app/dashboard/SelfRetakesTable"
 
 export const dynamic = "force-dynamic"
 
@@ -28,6 +28,10 @@ export default async function Dashboard() {
   const session = await getSession()
 
   if (!session?.user) redirect("/login")
+
+  if (!session.user.email?.includes("@mirea.ru")) {
+    return redirect("/student")
+  }
 
   const statistics = await getStatistics()
 
@@ -62,12 +66,10 @@ export default async function Dashboard() {
           studentsByInstitute={studentsByInstitute}
           debtorsByInstitute={debtorsByInstitute}
         />
-        <div className="grid gap-4 md:grid-cols-2">
-          <RecentActivity />
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <SelfRetakesTable />
-        </div>
+
+        <RecentActivity />
+
+        <SelfRetakesTable />
       </div>
     </>
   )

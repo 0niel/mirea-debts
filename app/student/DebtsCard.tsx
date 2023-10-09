@@ -67,7 +67,7 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
   // })
 
   return (
-    <Card className="col-span-3">
+    <Card>
       <CardHeader>
         <CardTitle>Ваши задолженности</CardTitle>
         {debts.length && (

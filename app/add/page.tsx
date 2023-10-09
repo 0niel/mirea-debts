@@ -26,6 +26,10 @@ export default async function Add() {
 
   if (!session?.user) redirect("/login")
 
+  if (!session.user.email?.includes("@mirea.ru")) {
+    return redirect("/student")
+  }
+
   const disciplines = await getUniqueDisciplines()
 
   return (

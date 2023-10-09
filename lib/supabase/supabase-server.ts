@@ -97,3 +97,28 @@ export async function getOwnDebtsDisciplines() {
     return null
   }
 }
+
+export async function getAllRetakesByDebtsDisciplines(disciplines: string[]) {
+  const supabase = createServerSupabaseClient()
+
+  const retakesData = await Promise.all(
+    disciplines.map(async (discipline) => {
+      try {
+        const { data } = await supabase
+          .schema("rtu_mirea")
+          .from("retakes")
+          .select("*")
+          .eq("discipline", discipline)
+          .throwOnError()
+        return data ?? []
+      } catch (error) {
+        console.error("Error:", error)
+        return []
+      }
+    })
+  )
+
+  const retakes = retakesData.flat().filter((retake) => retake !== null)
+
+  return retakes
+}
