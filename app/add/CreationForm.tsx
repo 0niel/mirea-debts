@@ -212,20 +212,22 @@ export function CreationForm(props: CreationFormProps) {
       .filter((teacher) => teacher !== "")
       .join(", ")
 
+    const retake = {
+      place: data.place,
+      discipline: data.discipline,
+      description: data.description,
+      teachers,
+      date: data.date.toISOString().split("T")[0],
+      time_start: data.time_start,
+      time_end: data.time_end,
+      need_statement: data.need_statement,
+      is_online: data.is_online,
+    }
+
     const { error } = await supabase
       .schema("rtu_mirea")
       .from("retakes")
-      .insert({
-        place: data.place,
-        discipline: data.discipline,
-        description: data.description,
-        teachers,
-        date: data.date.toISOString().split("T")[0],
-        time_start: data.time_start,
-        time_end: data.time_end,
-        need_statement: data.need_statement,
-        is_online: data.is_online,
-      })
+      .insert(retake)
 
     if (error) {
       toast({
@@ -242,6 +244,13 @@ export function CreationForm(props: CreationFormProps) {
     toast({
       title: "Успешно!",
       description: "Пересдача успешно создана.",
+    })
+
+    await fetch("/api/messengers/send-notifications", {
+      method: "POST",
+      body: JSON.stringify({
+        retake: retake,
+      }),
     })
 
     router.push("/dashboard")
