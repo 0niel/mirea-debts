@@ -30,8 +30,8 @@ jobs:
           --pull \
           --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }} \
           --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
-          --build-arg SUPABASE_SERVICE_ROLE_KEY=${{ env.SUPABASE_SERVICE_ROLE_KEY }} \
           --build-arg NEXT_PUBLIC_AUTH_REDIRECT_URL=${{ env.NEXT_PUBLIC_AUTH_REDIRECT_URL }} \
+          --build-arg NEXT_PUBLIC_TELEGRAM_BOT_NAME=${{ env.NEXT_PUBLIC_TELEGRAM_BOT_NAME }} \
           --cache-from cr.yandex/${{ env.CR_REGISTRY }}/${{ env.CR_IMAGE_FRONTEND }}:latest \
           --label "org.image.title=${{ github.repository }}" \
           --label "org.image.url=${{ github.repositoryUrl }}" \
