@@ -43,7 +43,7 @@ export function SelfRetakesTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Предмен</TableHead>
+                <TableHead>Предмет</TableHead>
                 <TableHead>Описание</TableHead>
                 <TableHead>Онлайн?</TableHead>
                 <TableHead>Ссылка/аудитория</TableHead>

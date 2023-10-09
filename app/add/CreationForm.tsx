@@ -182,6 +182,31 @@ export function CreationForm(props: CreationFormProps) {
       return
     }
 
+    try {
+      const now = new Date()
+      const date = data.date
+      date.setHours(parseInt(data.time_start.split(":")[0]))
+      if (date.getTime() - now.getTime() < 24 * 60 * 60 * 1000) {
+        if (
+          !confirm(
+            "Вы создаёте пересдачу, до которой с момента её создания пройдёт менее 24 часов. Мы рекомендуем создавать пересдачи заранее. Вы уверены, что хотите создать пересдачу?"
+          )
+        ) {
+          return
+        }
+      } else if (now.getHours() >= 23 || now.getHours() <= 5) {
+        if (
+          !confirm(
+            "Мы отправим уведомление всем студентам, которые имеют задолженность по этому предмету. Вы уверены, что хотите создать пересдачу сейчас? "
+          )
+        ) {
+          return
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
+
     const teachers = data.teachers
       .map((teacher) => teacher.value.trim().replace(",", " "))
       .filter((teacher) => teacher !== "")
