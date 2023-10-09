@@ -11,6 +11,7 @@ import DebtsCard from "./DebtsCard"
 import { OnlineEduDisciplinesCard } from "./OnlineEduDisciplinesCard"
 import { SelfRetakesTable } from "./SelfRetakesTable"
 import { TelegramConnectionCard } from "./TelegramConnectionCard"
+import TelegramApi from "@/lib/telegram-api"
 
 export const dynamic = "force-dynamic"
 
@@ -30,6 +31,8 @@ export default async function Student() {
   )
 
   const connectedSocialNetweork = await getConnectedSocialNetworks()
+
+  await TelegramApi.initCallback()
 
   return (
     <>
