@@ -380,9 +380,6 @@ export function CreationForm(props: CreationFormProps) {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Для предмета можно назначить только одну пересдачу.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
