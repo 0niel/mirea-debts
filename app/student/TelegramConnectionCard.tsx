@@ -1,9 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import { Link1Icon } from "@radix-ui/react-icons"
 import { User } from "@supabase/supabase-js"
 
 import { Database } from "@/lib/supabase/db-types"
-import TelegramApi from "@/lib/telegram-api"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,15 +25,15 @@ import {
 
 import UnklinkSocialNetworkButton from "./UnklinkSocialNetworkButton"
 
-export async function TelegramConnectionCard({
+export const dynamic = "force-dynamic"
+
+export function TelegramConnectionCard({
   user,
   telegram,
 }: {
   user: User
   telegram: Database["rtu_mirea"]["Tables"]["social_networks"]["Row"] | null
 }) {
-  await TelegramApi.initCallback()
-
   const generateDeepLink = (payload: string) => {
     const url = `https://t.me/${process.env.TELEGRAM_BOT_NAME}?start=${payload}`
     return url

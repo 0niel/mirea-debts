@@ -1,7 +1,4 @@
-import { cookies } from "next/headers"
-import Link from "next/link"
 import { redirect } from "next/navigation"
-import { de } from "date-fns/locale"
 
 import {
   getAllRetakesByDebtsDisciplines,
@@ -9,17 +6,6 @@ import {
   getOwnDebtsDisciplines,
   getSession,
 } from "@/lib/supabase/supabase-server"
-import TelegramApi from "@/lib/telegram-api"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { UserNav } from "@/components/UserNav"
-import { YearDebtAlert } from "@/components/YearDebtAlert"
 
 import DebtsCard from "./DebtsCard"
 import { OnlineEduDisciplinesCard } from "./OnlineEduDisciplinesCard"
@@ -29,9 +15,6 @@ import { TelegramConnectionCard } from "./TelegramConnectionCard"
 export const dynamic = "force-dynamic"
 
 export default async function Student() {
-  // Preload Telegram API
-  await TelegramApi.initCallback()
-
   const session = await getSession()
 
   if (!session?.user) return redirect("/login")

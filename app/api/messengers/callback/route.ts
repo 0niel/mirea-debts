@@ -2,6 +2,7 @@ import { SupabaseClient, createClient } from "@supabase/supabase-js"
 
 import { Database } from "@/lib/supabase/db-types"
 import TelegramApi from "@/lib/telegram-api"
+import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic"
 
@@ -22,7 +23,7 @@ async function handleTelegramEvent(
   const { message } = (await request.json()) as TelegramMessage
 
   if (!message || !message.text.startsWith("/start ")) {
-    return Response.json({ ok: true })
+    return NextResponse.json({ ok: true })
   }
 
   const { data: user } = await supabase.auth.admin.getUserById(
@@ -34,7 +35,7 @@ async function handleTelegramEvent(
       message.from.id.toString(),
       "Не удалось подключить аккаунт. Попробуйте ещё раз."
     )
-    return Response.json({ ok: true })
+    return NextResponse.json({ ok: true })
   }
 
   const { data: userSocialNetwork } = await supabase
@@ -49,7 +50,7 @@ async function handleTelegramEvent(
       message.from.id.toString(),
       "Вы уже подключили свой аккаунт Telegram. Сперва отвяжите его!"
     )
-    return Response.json({ ok: true })
+    return NextResponse.json({ ok: true })
   }
 
   const { data: student } = await supabase
@@ -71,7 +72,7 @@ async function handleTelegramEvent(
     "Ваш аккаунт Telegram успешно подключен. Теперь вы можете получать уведомления о новых пересдачах."
   )
 
-  return Response.json({ ok: true })
+  return NextResponse.json({ ok: true })
 }
 
 export async function POST(request: Request) {
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
 
   if (secret !== process.env.CALLBACK_SECRET_URL_STRING) {
     console.error("Wrong secret:", secret)
-    return Response.json({ error: "You are not allowed to access this page" })
+    return NextResponse.json({ error: "You are not allowed to access this page" })
   }
 
   const supabase = createClient<Database>(
