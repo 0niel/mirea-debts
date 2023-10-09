@@ -67,5 +67,5 @@ class TelegramApi {
 
 export default TelegramApi.getInstance(
   process.env.TELEGRAM_BOT_TOKEN!,
-  process.env.TELEGRAM_BOT_NAME!
+  process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME!
 )

@@ -35,7 +35,7 @@ export function TelegramConnectionCard({
   telegram: Database["rtu_mirea"]["Tables"]["social_networks"]["Row"] | null
 }) {
   const generateDeepLink = (payload: string) => {
-    const url = `https://t.me/${process.env.TELEGRAM_BOT_NAME}?start=${payload}`
+    const url = `https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME}?start=${payload}`
     return url
   }
 
