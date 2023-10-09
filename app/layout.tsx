@@ -49,6 +49,11 @@ export default function RootLayout({
             </ThemeProvider>
             <Toaster />
           </body>
+          <footer>
+            <p className="mb-4 text-center text-xs text-muted-foreground">
+              Powered by Mirea Ninja
+            </p>
+          </footer>
         </html>
       </QueryClientProvider>
     </SupabaseProvider>
