@@ -717,6 +717,46 @@ export interface Database {
         }
         Relationships: []
       }
+      social_networks: {
+        Row: {
+          created_at: string
+          external_id: string
+          id: number
+          student_id: string | null
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          external_id: string
+          id?: number
+          student_id?: string | null
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string
+          id?: number
+          student_id?: string | null
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_networks_student_id_fkey"
+            columns: ["student_id"]
+            referencedRelation: "students"
+            referencedColumns: ["student_uuid"]
+          },
+          {
+            foreignKeyName: "social_networks_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       statistics: {
         Row: {
           created_at: string

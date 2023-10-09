@@ -18,9 +18,7 @@ export async function GET(request: Request) {
 
   const me = await supabase.auth.getUser()
   if (!me.data.user?.email?.includes("@mirea.ru")) {
-    return NextResponse.redirect(`/login?error=Could not authenticate user`, {
-      status: 301,
-    })
+    return Response.json({ error: "You are not allowed to access this page" })
   }
 
   const userId = searchParams.get("userId")
@@ -30,9 +28,7 @@ export async function GET(request: Request) {
   )
 
   if (error) {
-    return NextResponse.redirect(`/login?error=Could not authenticate user`, {
-      status: 301,
-    })
+    return Response.json({ error })
   }
 
   return NextResponse.json({

@@ -122,3 +122,20 @@ export async function getAllRetakesByDebtsDisciplines(disciplines: string[]) {
 
   return retakes
 }
+
+export async function getConnectedSocialNetworks() {
+  const supabase = createServerSupabaseClient()
+  const me = await supabase.auth.getUser()
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .from("social_networks")
+      .select("*")
+      .eq("user_id", me.data?.user?.id ?? "")
+      .single()
+      .throwOnError()
+    return data
+  } catch (error) {
+    return null
+  }
+}

@@ -5,9 +5,11 @@ import { de } from "date-fns/locale"
 
 import {
   getAllRetakesByDebtsDisciplines,
+  getConnectedSocialNetworks,
   getOwnDebtsDisciplines,
   getSession,
 } from "@/lib/supabase/supabase-server"
+import TelegramApi from "@/lib/telegram-api"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,10 +24,14 @@ import { YearDebtAlert } from "@/components/YearDebtAlert"
 import DebtsCard from "./DebtsCard"
 import { OnlineEduDisciplinesCard } from "./OnlineEduDisciplinesCard"
 import { SelfRetakesTable } from "./SelfRetakesTable"
+import { TelegramConnectionCard } from "./TelegramConnectionCard"
 
 export const dynamic = "force-dynamic"
 
 export default async function Student() {
+  // Preload Telegram API
+  await TelegramApi.initCallback()
+
   const session = await getSession()
 
   if (!session?.user) return redirect("/login")
@@ -39,6 +45,8 @@ export default async function Student() {
   const retakes = await getAllRetakesByDebtsDisciplines(
     (debts ?? []).map((debt) => debt.name)
   )
+
+  const connectedSocialNetweork = await getConnectedSocialNetworks()
 
   return (
     <>
@@ -57,9 +65,16 @@ export default async function Student() {
         {/* <YearDebtAlert /> */}
         <div className="grid gap-4 md:grid-cols-2">
           <DebtsCard debts={debts ?? []} />
-          <OnlineEduDisciplinesCard />
+          <div className="grid gap-4 md:grid-cols-2">
+            <OnlineEduDisciplinesCard />
+            <TelegramConnectionCard
+              user={session.user}
+              telegram={connectedSocialNetweork}
+            />
+          </div>
         </div>
-        <SelfRetakesTable retakes={retakes} /> *
+
+        <SelfRetakesTable retakes={retakes} />
       </div>
     </>
   )

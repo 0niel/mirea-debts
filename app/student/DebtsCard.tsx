@@ -80,7 +80,7 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
         <div className="space-y-8">
           {debts.length ? (
             debts.map((debt) => (
-              <>
+              <div key={debt.id}>
                 <div className="flex items-center">
                   <div className="ml-4 space-y-1">
                     <p className="text-sm font-medium leading-none">
@@ -92,7 +92,7 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
                   </div>
                 </div>
                 {/* <div className="ml-auto font-medium">+$1,999.00</div> */}
-              </>
+              </div>
             ))
           ) : (
             <div className="flex h-64 w-full flex-col items-center justify-center">
