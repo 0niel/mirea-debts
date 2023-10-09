@@ -246,7 +246,7 @@ export function CreationForm(props: CreationFormProps) {
       description: "Пересдача успешно создана.",
     })
 
-    await fetch("/api/messengers/send-notifications", {
+    fetch("/api/messengers/send-notifications", {
       method: "POST",
       body: JSON.stringify({
         retake: retake,

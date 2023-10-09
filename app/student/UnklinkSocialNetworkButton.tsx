@@ -27,16 +27,22 @@ export default function UnklinkSocialNetworkButton() {
         .match({ user_id: me.data?.user?.id ?? "" })
         .single()
         .throwOnError()
+
+      toast({
+        title: "Аккаунт успешно отвязан",
+      })
+
+      window.location.reload()
     } catch (error) {
       console.error(error)
       toast({
         title: "Произошла ошибка при отвязке аккаунта",
       })
 
-      window.location.reload()
-
       return
     }
+
+    window.location.reload()
   }
 
   return (
