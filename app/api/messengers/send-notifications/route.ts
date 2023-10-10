@@ -1,6 +1,9 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import { SupabaseClient, createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import {
+  SupabaseClient,
+  createRouteHandlerClient,
+} from "@supabase/auth-helpers-nextjs"
 
 import { Database } from "@/lib/supabase/db-types"
 import TelegramApi from "@/lib/telegram-api"
@@ -27,7 +30,10 @@ export async function POST(request: Request) {
   return NextResponse.json({ success: true })
 }
 
-async function getStudentIds(discipline: string, supabase: SupabaseClient<Database>) {
+async function getStudentIds(
+  discipline: string,
+  supabase: SupabaseClient<Database>
+) {
   const { data: studentDebts } = await supabase
     .schema("rtu_mirea")
     .from("debts_disciplines")
@@ -39,7 +45,10 @@ async function getStudentIds(discipline: string, supabase: SupabaseClient<Databa
   return studentUuids
 }
 
-async function getStudents(studentUuids: string[], supabase: SupabaseClient<Database>) {
+async function getStudents(
+  studentUuids: string[],
+  supabase: SupabaseClient<Database>
+) {
   const students = await Promise.all(
     studentUuids.map(async (studentId) => {
       const { data: student } = await supabase
@@ -56,7 +65,11 @@ async function getStudents(studentUuids: string[], supabase: SupabaseClient<Data
   return students
 }
 
-async function sendMessages(students: any[], retake: any, supabase: SupabaseClient<Database>) {
+async function sendMessages(
+  students: any[],
+  retake: any,
+  supabase: SupabaseClient<Database>
+) {
   const chunkSize = 10
   const chunks = Math.ceil(students.length / chunkSize)
 
@@ -77,7 +90,9 @@ async function sendMessages(students: any[], retake: any, supabase: SupabaseClie
         if (socialNetwork) {
           await TelegramApi.sendMessage(
             socialNetwork.external_id,
-            `По предмету ${retake.discipline} появилась новая пересдача! Дата: ${retake.date
+            `По предмету ${
+              retake.discipline
+            } появилась новая пересдача! Дата: ${retake.date
               .split("-")
               .reverse()
               .join(".")}\n\nУзнайте подробнее на https://debts.mirea.ru/`

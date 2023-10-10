@@ -18,7 +18,9 @@ export async function GET(request: Request) {
 
   const me = await supabase.auth.getUser()
   if (!me.data.user?.email?.includes("@mirea.ru")) {
-    return NextResponse.json({ error: "You are not allowed to access this page" })
+    return NextResponse.json({
+      error: "You are not allowed to access this page",
+    })
   }
 
   const userId = searchParams.get("userId")

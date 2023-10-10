@@ -1,8 +1,8 @@
+import { NextResponse } from "next/server"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
 
 import { Database } from "@/lib/supabase/db-types"
 import TelegramApi from "@/lib/telegram-api"
-import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic"
 
@@ -81,7 +81,9 @@ export async function POST(request: Request) {
 
   if (secret !== process.env.CALLBACK_SECRET_URL_STRING) {
     console.error("Wrong secret:", secret)
-    return NextResponse.json({ error: "You are not allowed to access this page" })
+    return NextResponse.json({
+      error: "You are not allowed to access this page",
+    })
   }
 
   const supabase = createClient<Database>(
