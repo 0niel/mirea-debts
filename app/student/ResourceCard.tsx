@@ -14,14 +14,14 @@ export function ResourceCard({
 }) {
   return (
     <Link href={href} target="_blank" rel="noopener noreferrer">
-      <div className="w-[150px] space-y-3 ">
+      <div className="flex w-[150px] flex-col items-center space-y-3">
         <div className="overflow-hidden rounded-md">
           <Image
             src={image}
             alt={title}
             width={250}
             height={330}
-            className="aspect-[3/4] h-auto w-auto object-cover transition-all hover:scale-105"
+            className="aspect-[3/4] h-auto w-auto rounded-md border object-cover transition-all hover:scale-105"
           />
         </div>
         <div className="space-y-1 text-sm">
