@@ -109,6 +109,7 @@ export async function getAllRetakesByDebtsDisciplines(disciplines: string[]) {
           .from("retakes")
           .select("*")
           .eq("discipline", discipline)
+          .order("date", { ascending: true })
           .throwOnError()
         return data ?? []
       } catch (error) {

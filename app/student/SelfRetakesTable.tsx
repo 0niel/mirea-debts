@@ -1,5 +1,6 @@
 "use client"
 
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons"
 import {
   ColumnDef,
   flexRender,
@@ -23,6 +24,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export function SelfRetakesTable({
   retakes,
@@ -51,7 +58,23 @@ export function SelfRetakesTable({
                 <TableHead>Время начала</TableHead>
                 <TableHead>Время окончания</TableHead>
                 <TableHead>Преподаватели</TableHead>
-                <TableHead>Допуск</TableHead>
+                <TableHead className="flex w-[100px] items-center justify-center space-x-2">
+                  <p>Допуск</p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <QuestionMarkCircledIcon className="h-4 w-4" />
+                      </TooltipTrigger>
+                      <TooltipContent className="w-[200px] text-sm">
+                        <p>
+                          Если отмечено, что нужен допуск, то необходимо
+                          получить ведомость или допуск в учебном отделе вашего
+                          института.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -64,8 +87,12 @@ export function SelfRetakesTable({
                   <TableCell>
                     {retake.date.split("-").reverse().join(".")}
                   </TableCell>
-                  <TableCell>{retake.time_start}</TableCell>
-                  <TableCell>{retake.time_end}</TableCell>
+                  <TableCell>
+                    {retake.time_start.split(":").slice(0, 2).join(":")}
+                  </TableCell>
+                  <TableCell>
+                    {retake.time_end.split(":").slice(0, 2).join(":")}
+                  </TableCell>
                   <TableCell>{retake.teachers}</TableCell>
                   <TableCell>
                     {retake.need_statement ? "Нужен" : "Не нужен"}
