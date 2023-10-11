@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
@@ -12,17 +13,6 @@ import * as z from "zod"
 
 import { useSupabase } from "@/lib/supabase/supabase-provider"
 import { cn } from "@/lib/utils"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -52,9 +42,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { toast, useToast } from "@/components/ui/use-toast"
-
-import { Notifications } from "./Notifications"
+import { useToast } from "@/components/ui/use-toast"
 
 const profileFormSchema = z.object({
   place: z
@@ -260,6 +248,23 @@ export function CreationForm(props: CreationFormProps) {
     props.disciplines.slice(0, 100)
   )
 
+  const { data: debtorsDisciplines } = useQuery(
+    [form.watch("discipline")],
+    async () => {
+      const { data } = await supabase
+        .schema("rtu_mirea")
+        .from("debts_disciplines")
+        .select("*")
+        .eq("name", form.watch("discipline"))
+        .throwOnError()
+
+      return data
+    },
+    {
+      enabled: form.watch("discipline") !== undefined,
+    }
+  )
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -321,6 +326,7 @@ export function CreationForm(props: CreationFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Предмет</FormLabel>
+
               <Popover>
                 <FormControl>
                   <PopoverTrigger asChild>
@@ -380,6 +386,14 @@ export function CreationForm(props: CreationFormProps) {
                   </Command>
                 </PopoverContent>
               </Popover>
+
+              {debtorsDisciplines && (
+                <FormDescription>
+                  {debtorsDisciplines.length} студентов имеют задолженность по
+                  этому предмету.
+                </FormDescription>
+              )}
+
               <FormMessage />
             </FormItem>
           )}
