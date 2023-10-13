@@ -22,11 +22,7 @@ export const dynamic = "force-dynamic"
 export default async function Student() {
   const session = await getSession()
 
-  if (!session?.user) return redirect("/login")
-
-  if (session.user.email?.includes("@mirea.ru")) {
-    return redirect("/dashboard")
-  }
+  if (!session?.user) redirect("/login")
 
   const debts = await getOwnDebtsDisciplines()
 
