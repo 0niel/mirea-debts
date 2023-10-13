@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
+import plural from "plural-ru"
 import { useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -389,8 +390,14 @@ export function CreationForm(props: CreationFormProps) {
 
               {debtorsDisciplines && (
                 <FormDescription>
-                  {debtorsDisciplines.length} студентов имеют задолженность по
-                  этому предмету.
+                  {debtorsDisciplines.length}{" "}
+                  {plural(
+                    debtorsDisciplines.length,
+                    "студент",
+                    "студента",
+                    "студентов"
+                  )}
+                  имеют задолженность по этому предмету.
                 </FormDescription>
               )}
 

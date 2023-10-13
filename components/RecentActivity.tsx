@@ -3,6 +3,7 @@
 import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { User } from "@supabase/supabase-js"
 import { useQuery } from "@tanstack/react-query"
+import plural from "plural-ru"
 
 import { Database } from "@/lib/supabase/db-types"
 import { useSupabase } from "@/lib/supabase/supabase-provider"
@@ -73,7 +74,13 @@ export function RecentActivity() {
       <CardHeader>
         <CardTitle>Последняя активность</CardTitle>
         <CardDescription>
-          В этом месяце было назначено {recentActivity?.length} пересдач
+          В этом месяце было назначено {recentActivity?.length || 0}{" "}
+          {plural(
+            recentActivity?.length || 0,
+            "пересдача",
+            "пересдачи",
+            "пересдач"
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

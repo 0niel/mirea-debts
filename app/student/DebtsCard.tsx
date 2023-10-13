@@ -1,10 +1,8 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import axios from "axios"
+import plural from "plural-ru"
 
 import { Database } from "@/lib/supabase/db-types"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -16,63 +14,19 @@ import {
 type Debts = Database["rtu_mirea"]["Tables"]["debts_disciplines"]["Row"][]
 
 export default function DebtsCard({ debts }: { debts: Debts }) {
-  // const { data } = useQuery([debts], async () => {
-  //   // fetch https://online-edu.mirea.ru/group-page/table_generation.php with ИКБО-30-20 as group_name form data
-  //   const response = await axios.post(
-  //     "https://online-edu.mirea.ru/group-page/table_generation.php",
-  //     {
-  //       // form data
-  //       group_name: "ИКБО-30-20",
-  //       headers: {
-  //         Origin: "https://online-edu.mirea.ru",
-  //         Referer: "https://online-edu.mirea.ru/group-page/",
-  //       },
-  //     }
-  //   )
-
-  //   const text = await response.text()
-
-  //   console.log(text)
-
-  //   // Response Example:
-  //   //   <tr>
-  //   //   <th>ИКБО-30-20</th>
-  //   //   <th>1</th>
-  //   //   <th>Введение в профессиональную деятельность_52</th>
-  //   //   <th>
-  //   //       <a href='https://online-edu.mirea.ru/course/view.php?id=4046'>
-  //   //           <img width=50 src='/group-page/assets/img/link.png' border=0 title='Перейти в дисциплину'>
-  //   //       </a>
-  //   //   </th>
-  //   //   <th>ИИТ / Кафедра инструментального и прикладного программного обеспечения</th>
-  //   // </tr>
-
-  //   // Parse table from response and get names of disciplines with url:
-  //   const parser = new DOMParser()
-
-  //   const parsed = parser.parseFromString(text, "text/html")
-
-  //   const rows = parsed.querySelectorAll("tr")
-
-  //   console.log(rows)
-
-  //   const disciplines = Array.from(rows).map((row) => ({
-  //     name: row.children[2].textContent,
-  //     url: row.querySelector("a")?.href,
-  //   }))
-
-  //   console.log(disciplines)
-
-  //   return disciplines
-  // })
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Ваши задолженности</CardTitle>
         {debts.length ? (
           <CardDescription>
-            Сейчас у вас {debts.length} задолженностей.
+            Сейчас у вас {debts.length}{" "}
+            {plural(
+              debts.length,
+              "задолженность",
+              "задолженности",
+              "задолженностей"
+            )}
           </CardDescription>
         ) : (
           <></>
@@ -88,12 +42,8 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
                     <p className="text-sm font-medium leading-none">
                       {debt.name}
                     </p>
-                    {/* <p className="text-sm text-muted-foreground">
-                      olivia.martin@email.com
-                    </p> */}
                   </div>
                 </div>
-                {/* <div className="ml-auto font-medium">+$1,999.00</div> */}
               </div>
             ))
           ) : (

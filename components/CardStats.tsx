@@ -90,9 +90,6 @@ export default function CardsStats({
             <div className="text-2xl font-bold">
               {data[data.length - 1]?.debtors}
             </div>
-            {/* <p className="text-xs text-muted-foreground">
-      +20.1%
-    </p> */}
             <div className="h-[80px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -162,9 +159,6 @@ export default function CardsStats({
             <div className="text-2xl font-bold">
               {data[data.length - 1]?.debts}
             </div>
-            {/* <p className="text-xs text-muted-foreground">
-      +180.1% from last month
-    </p> */}
             <div className="mt-4 h-[80px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
