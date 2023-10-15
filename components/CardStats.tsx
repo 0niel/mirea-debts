@@ -1,5 +1,6 @@
 "use client"
 
+import { use, useEffect, useState } from "react"
 import {
   Bar,
   BarChart,
@@ -13,8 +14,17 @@ import {
 } from "recharts"
 
 import { institutesShortNames } from "@/lib/institutes"
-import { Database } from "@/lib/supabase/db-types"
+import { Database, Json } from "@/lib/supabase/db-types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 function CustomTooltip({ payload, label, active, payloadSuffix = "" }: any) {
   if (active) {
@@ -43,15 +53,19 @@ export default function CardsStats({
   studentsByInstitute: number[]
   debtorsByInstitute: number[]
 }) {
-  const data = statistics
-    .sort((a, b) => {
-      return Date.parse(a.created_at) - Date.parse(b.created_at)
-    })
-    .map((stat) => ({
-      debtors: stat.debtors,
-      debts: stat.debts,
-      name: stat.created_at.split("T")[0].split("-").reverse().join("."),
-    }))
+  const getDebtsAndDebtorsForAllByTime = () => {
+    return statistics
+      .sort((a, b) => {
+        return Date.parse(a.created_at) - Date.parse(b.created_at)
+      })
+      .map((stat) => ({
+        debtors: stat.debtors,
+        debts: stat.debts,
+        name: stat.created_at.split("T")[0].split("-").reverse().join("."),
+      }))
+  }
+
+  const [data, setData] = useState(getDebtsAndDebtorsForAllByTime())
 
   const data2 = institutes.map((institute, index) => ({
     institute,
@@ -63,6 +77,44 @@ export default function CardsStats({
     name: institutesShortNames.get(institute) ?? institute,
   }))
 
+  const [debtorsDisplayMode, setDebtorsDisplayMode] = useState<"all" | string>(
+    "all"
+  )
+
+  useEffect(() => {
+    const getData = () => {
+      if (debtorsDisplayMode === "all") {
+        return getDebtsAndDebtorsForAllByTime()
+      }
+
+      const fullInstituteName = Array.from(institutesShortNames.entries()).find(
+        ([fullName, shortName]) => {
+          return fullName === debtorsDisplayMode
+        }
+      )?.[0]
+
+      if (!fullInstituteName) {
+        return getDebtsAndDebtorsForAllByTime()
+      }
+
+      const instituteData = statistics.map((stat) => {
+        const byInstitutes = stat.by_institutes as {
+          [key: string]: number
+        } | null
+        const debtors = byInstitutes?.[fullInstituteName] ?? 0
+        return {
+          debtors,
+          debts: stat.debts,
+          name: stat.created_at.split("T")[0].split("-").reverse().join("."),
+        }
+      })
+
+      return instituteData
+    }
+
+    setData(getData())
+  }, [debtorsDisplayMode])
+
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
@@ -71,20 +123,40 @@ export default function CardsStats({
             <CardTitle className="text-base font-normal">
               Всего должников
             </CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+            <div className="flex flex-row items-center space-x-2">
+              <Select
+                value={debtorsDisplayMode}
+                onValueChange={setDebtorsDisplayMode}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Режим отображения" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">Всего</SelectItem>
+                    {institutes.map((institute) => (
+                      <SelectItem value={institute} key={institute}>
+                        {institutesShortNames.get(institute) ?? institute}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                className="h-4 w-4 text-muted-foreground"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">

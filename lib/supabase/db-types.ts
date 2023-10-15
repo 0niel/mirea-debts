@@ -715,7 +715,14 @@ export interface Database {
           time_end?: string
           time_start?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "retakes_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       social_networks: {
         Row: {
@@ -759,18 +766,21 @@ export interface Database {
       }
       statistics: {
         Row: {
+          by_institutes: Json
           created_at: string
           debtors: number
           debts: number
           id: number
         }
         Insert: {
+          by_institutes: Json
           created_at?: string
           debtors: number
           debts: number
           id?: number
         }
         Update: {
+          by_institutes?: Json
           created_at?: string
           debtors?: number
           debts?: number

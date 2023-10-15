@@ -10,7 +10,6 @@ export const institutes = [
   "Аспирантура",
 ]
 
-// To use: institutesShortNames.get("Институт радиоэлектроники и информатики")
 export const institutesShortNames = new Map([
   ["Институт радиоэлектроники и информатики", "ИРИ"],
   ["Институт информационных технологий", "ИИТ"],
