@@ -109,7 +109,7 @@ export function RecentActivity() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="ml-auto leading-none sm:ml-6">
+                  <div className="ml-auto min-w-[200px] leading-none sm:ml-6">
                     <p>
                       создал(а) пересдачу «{retake.discipline}» на{" "}
                       <span className="font-medium">
