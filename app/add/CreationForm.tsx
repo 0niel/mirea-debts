@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,6 +12,7 @@ import plural from "plural-ru"
 import { useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
 
+import { Database } from "@/lib/supabase/db-types"
 import { useSupabase } from "@/lib/supabase/supabase-provider"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -44,6 +45,8 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+
+import { ConfirmationDialog } from "./CreationDialog"
 
 const profileFormSchema = z.object({
   place: z
@@ -136,7 +139,6 @@ interface CreationFormProps {
 export function CreationForm(props: CreationFormProps) {
   const { supabase } = useSupabase()
   const { toast } = useToast()
-  const router = useRouter()
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -148,6 +150,11 @@ export function CreationForm(props: CreationFormProps) {
     name: "teachers",
     control: form.control,
   })
+
+  const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false)
+  const [retakeToInsert, setRetakeToInsert] = useState<
+    Database["rtu_mirea"]["Tables"]["retakes"]["Insert"] | null
+  >(null)
 
   async function onSubmit(data: ProfileFormValues) {
     const retakes = await supabase
@@ -213,36 +220,7 @@ export function CreationForm(props: CreationFormProps) {
       is_online: data.is_online,
     }
 
-    const { error } = await supabase
-      .schema("rtu_mirea")
-      .from("retakes")
-      .insert(retake)
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "ОЙ! Что-то пошло не так.",
-        description: "Произошла ошибка при создании пересдачи.",
-      })
-
-      console.error(error)
-
-      return
-    }
-
-    toast({
-      title: "Успешно!",
-      description: "Пересдача успешно создана.",
-    })
-
-    fetch("/api/messengers/send-notifications", {
-      method: "POST",
-      body: JSON.stringify({
-        retake: retake,
-      }),
-    })
-
-    router.push("/dashboard")
+    setRetakeToInsert(retake)
   }
 
   const [filteredDisciplines, setFilteredDisciplines] = useState(
@@ -266,298 +244,312 @@ export function CreationForm(props: CreationFormProps) {
     }
   )
 
+  useEffect(() => {
+    if (retakeToInsert) {
+      setConfirmationDialogOpen(true)
+    }
+  }, [retakeToInsert])
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="is_online"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Пересдача будет онлайн?</FormLabel>
-                <FormDescription>
-                  Отметьте, если пересдача будет проводиться онлайн.
-                </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="place"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {form.watch("is_online") ? "Ссылка" : "Аудитория"}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={
-                    form.watch("is_online") ? "https://..." : "А-123 (В-78)"
-                  }
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                {form.watch("is_online") ? (
-                  <>
-                    Вставьте ссылку на пересдачу в Zoom, Webinar или другую
-                    платформу (например, курс в СДО).
-                  </>
-                ) : (
-                  <>Номер аудитории и кампус (если это важно).</>
-                )}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="discipline"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Предмет</FormLabel>
-
-              <Popover>
+    <>
+      <ConfirmationDialog
+        open={confirmationDialogOpen}
+        setOpen={setConfirmationDialogOpen}
+        retake={retakeToInsert}
+      />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="is_online"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                 <FormControl>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className="w-full justify-between"
-                    >
-                      {props.disciplines.find(
-                        (discipline) => discipline === field.value
-                      ) ?? "Выберите предмет"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
-                <PopoverContent className="w-full p-0">
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      placeholder="Поиск предмета..."
-                      onValueChange={(value) => {
-                        const newDisciplines = props.disciplines
-                          .filter((discipline) => {
-                            const words = value.split(" ")
-                            return words.every((word) => {
-                              const regex = new RegExp(word, "gi")
-                              return regex.test(discipline)
-                            })
-                          })
-                          .slice(0, 100)
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Пересдача будет онлайн?</FormLabel>
+                  <FormDescription>
+                    Отметьте, если пересдача будет проводиться онлайн.
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
 
-                        setFilteredDisciplines(newDisciplines)
-                      }}
-                    />
-                    <CommandEmpty>Предмет не найден.</CommandEmpty>
-                    <CommandGroup>
-                      <ScrollArea className="h-[320px]">
-                        {filteredDisciplines.map((discipline) => (
-                          <CommandItem
-                            key={discipline}
-                            onSelect={() => {
-                              form.setValue("discipline", discipline)
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                field.value === discipline
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {discipline}
-                          </CommandItem>
-                        ))}
-                      </ScrollArea>
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-
-              {debtorsDisciplines && (
+          <FormField
+            control={form.control}
+            name="place"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {form.watch("is_online") ? "Ссылка" : "Аудитория"}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={
+                      form.watch("is_online") ? "https://..." : "А-123 (В-78)"
+                    }
+                    {...field}
+                  />
+                </FormControl>
                 <FormDescription>
-                  {debtorsDisciplines.length}{" "}
-                  {plural(
-                    debtorsDisciplines.length,
-                    "студент",
-                    "студента",
-                    "студентов"
+                  {form.watch("is_online") ? (
+                    <>
+                      Вставьте ссылку на пересдачу в Zoom, Webinar или другую
+                      платформу (например, курс в СДО).
+                    </>
+                  ) : (
+                    <>Номер аудитории и кампус (если это важно).</>
                   )}
-                  имеют задолженность по этому предмету.
                 </FormDescription>
-              )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="discipline"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Предмет</FormLabel>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Описание</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Расскажите о требованиях для присутствия на пересдаче или любые другие комментарии для студентов"
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Вы можете загрузить файл на{" "}
-                <Link href="https://cloud.mirea.ru/" className="underline">
-                  https://cloud.mirea.ru/
-                </Link>{" "}
-                и вставить ссылку
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <Popover>
+                  <FormControl>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {props.disciplines.find(
+                          (discipline) => discipline === field.value
+                        ) ?? "Выберите предмет"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                  </FormControl>
+                  <PopoverContent className="w-full p-0">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Поиск предмета..."
+                        onValueChange={(value) => {
+                          const newDisciplines = props.disciplines
+                            .filter((discipline) => {
+                              const words = value.split(" ")
+                              return words.every((word) => {
+                                const regex = new RegExp(word, "gi")
+                                return regex.test(discipline)
+                              })
+                            })
+                            .slice(0, 100)
 
-        <FormField
-          control={form.control}
-          name="need_statement"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Студенту нужна ведомость/допуск?</FormLabel>
+                          setFilteredDisciplines(newDisciplines)
+                        }}
+                      />
+                      <CommandEmpty>Предмет не найден.</CommandEmpty>
+                      <CommandGroup>
+                        <ScrollArea className="h-[320px]">
+                          {filteredDisciplines.map((discipline) => (
+                            <CommandItem
+                              key={discipline}
+                              onSelect={() => {
+                                form.setValue("discipline", discipline)
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === discipline
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {discipline}
+                            </CommandItem>
+                          ))}
+                        </ScrollArea>
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+
+                {debtorsDisciplines && (
+                  <FormDescription>
+                    {debtorsDisciplines.length}{" "}
+                    {plural(
+                      debtorsDisciplines.length,
+                      "студент",
+                      "студента",
+                      "студентов"
+                    )}
+                    имеют задолженность по этому предмету.
+                  </FormDescription>
+                )}
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Описание</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Расскажите о требованиях для присутствия на пересдаче или любые другие комментарии для студентов"
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
                 <FormDescription>
-                  Отметьте, должен ли студент взять допуск в учебном отделе
-                  института, чтобы присутствовать на пересдаче?
+                  Вы можете загрузить файл на{" "}
+                  <Link href="https://cloud.mirea.ru/" className="underline">
+                    https://cloud.mirea.ru/
+                  </Link>{" "}
+                  и вставить ссылку
                 </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
-        {/* 
-        <Notifications /> */}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div>
-          <div className={cn(fields.length !== 0 && "sr-only")}>
-            <FormLabel>Преподаватели</FormLabel>
-            <FormDescription>
-              Укажите ФИО всех принимающих преподавателей.
-            </FormDescription>
+          <FormField
+            control={form.control}
+            name="need_statement"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Студенту нужна ведомость/допуск?</FormLabel>
+                  <FormDescription>
+                    Отметьте, должен ли студент взять допуск в учебном отделе
+                    института, чтобы присутствовать на пересдаче?
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/*
+    <Notifications /> */}
+
+          <div>
+            <div className={cn(fields.length !== 0 && "sr-only")}>
+              <FormLabel>Преподаватели</FormLabel>
+              <FormDescription>
+                Укажите ФИО всех принимающих преподавателей.
+              </FormDescription>
+            </div>
+            {fields.map((field, index) => (
+              <FormField
+                control={form.control}
+                key={field.id}
+                name={`teachers.${index}.value`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={cn(index !== 0 && "sr-only")}>
+                      Преподаватели
+                    </FormLabel>
+                    <FormDescription className={cn(index !== 0 && "sr-only")}>
+                      Укажите ФИО всех принимающих преподавателей. Пустые поля
+                      будут игнорироваться.
+                    </FormDescription>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => append({ value: "" })}
+            >
+              Добавить
+            </Button>
+            <FormMessage />
           </div>
-          {fields.map((field, index) => (
+
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Выберите дату</FormLabel>
+                <FormControl>
+                  <div className="flex flex-row space-x-2">
+                    <DatePicker
+                      className="[&>button]:w-[260px]"
+                      setSelected={field.onChange}
+                      selected={field.value}
+                    />
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <div className="flex flex-row space-x-2">
             <FormField
               control={form.control}
-              key={field.id}
-              name={`teachers.${index}.value`}
+              name="time_start"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={cn(index !== 0 && "sr-only")}>
-                    Преподаватели
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && "sr-only")}>
-                    Укажите ФИО всех принимающих преподавателей. Пустые поля
-                    будут игнорироваться.
-                  </FormDescription>
+                  <FormLabel>Начало</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="time"
+                      id="time"
+                      min="09:00"
+                      max="20:00"
+                      className="w-[100px]"
+                      {...field}
+                      required
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            onClick={() => append({ value: "" })}
-          >
-            Добавить
-          </Button>
-          <FormMessage />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Выберите дату</FormLabel>
-              <FormControl>
-                <div className="flex flex-row space-x-2">
-                  <DatePicker
-                    className="[&>button]:w-[260px]"
-                    setSelected={field.onChange}
-                    selected={field.value}
-                  />
-                </div>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex flex-row space-x-2">
-          <FormField
-            control={form.control}
-            name="time_start"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Начало</FormLabel>
-                <FormControl>
-                  <Input
-                    type="time"
-                    id="time"
-                    min="09:00"
-                    max="20:00"
-                    className="w-[100px]"
-                    {...field}
-                    required
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="time_end"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Конец</FormLabel>
-                <FormControl>
-                  <Input
-                    type="time"
-                    id="time"
-                    min="09:00"
-                    max="21:00"
-                    className="w-[100px]"
-                    {...field}
-                    required
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button type="submit">Создать</Button>
-      </form>
-    </Form>
+            <FormField
+              control={form.control}
+              name="time_end"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Конец</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      id="time"
+                      min="09:00"
+                      max="21:00"
+                      className="w-[100px]"
+                      {...field}
+                      required
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button type="submit">Создать</Button>
+        </form>
+      </Form>
+    </>
   )
 }

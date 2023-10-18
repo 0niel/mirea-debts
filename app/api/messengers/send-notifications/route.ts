@@ -5,6 +5,7 @@ import {
   createRouteHandlerClient,
 } from "@supabase/auth-helpers-nextjs"
 
+import { NotificationRealtimeState } from "@/lib/notification-realtime-state"
 import { Database } from "@/lib/supabase/db-types"
 import TelegramApi from "@/lib/telegram-api"
 
@@ -45,6 +46,29 @@ async function getStudentIds(
   return studentUuids
 }
 
+async function broadcastNotificationRealtimeState(
+  supabase: SupabaseClient<Database>,
+  channelName: string,
+  state: NotificationRealtimeState
+) {
+  const channel = await supabase.channel(channelName)
+  channel.subscribe(async (status) => {
+    if (status !== "SUBSCRIBED") {
+      return null
+    }
+    console.log(`[Notification] Broadcasting ${JSON.stringify(state)}`)
+    await channel.send({
+      event: "sync",
+      type: "broadcast",
+      payload: state,
+    })
+
+    return () => {
+      channel.unsubscribe()
+    }
+  })
+}
+
 async function getStudents(
   studentUuids: string[],
   supabase: SupabaseClient<Database>
@@ -70,8 +94,14 @@ async function sendMessages(
   retake: any,
   supabase: SupabaseClient<Database>
 ) {
-  const chunkSize = 10
+  const chunkSize = 20
   const chunks = Math.ceil(students.length / chunkSize)
+
+  await broadcastNotificationRealtimeState(supabase, retake.discipline, {
+    state: "in-progress",
+    notified: 0,
+    total: students.length,
+  })
 
   for (let i = 0; i < chunks; i++) {
     const start = i * chunkSize
@@ -80,31 +110,53 @@ async function sendMessages(
 
     await Promise.all(
       chunk.map(async (student) => {
-        const { data: socialNetwork } = await supabase
-          .schema("rtu_mirea")
-          .from("social_networks")
-          .select("*")
-          .eq("student_id", student?.student_uuid)
-          .single()
+        try {
+          const { data: socialNetwork } = await supabase
+            .schema("rtu_mirea")
+            .from("social_networks")
+            .select("*")
+            .eq("student_id", student?.student_uuid)
+            .single()
 
-        if (socialNetwork) {
-          await TelegramApi.sendMessage(
-            socialNetwork.external_id,
-            `По предмету ${
-              retake.discipline
-            } появилась новая пересдача! Дата: ${retake.date
-              .split("-")
-              .reverse()
-              .join(".")}\n\nУзнайте подробнее на https://debts.mirea.ru/`
+          if (socialNetwork) {
+            await TelegramApi.sendMessage(
+              socialNetwork.external_id,
+              `По предмету ${
+                retake.discipline
+              } появилась новая пересдача! Дата: ${retake.date
+                .split("-")
+                .reverse()
+                .join(".")}\n\nУзнайте подробнее на https://debts.mirea.ru/`
+            )
+          }
+
+          await broadcastNotificationRealtimeState(
+            supabase,
+            retake.discipline,
+            {
+              state: "in-progress",
+              notified: i * chunkSize + 1,
+              total: students.length,
+            }
+          )
+        } catch (e) {
+          console.log(
+            `[Notification] Error sending message to ${student?.student_uuid}`
           )
         }
       })
     )
 
     if (i < chunks - 1) {
-      await sleep(3000)
+      await sleep(1000)
     }
   }
+
+  await broadcastNotificationRealtimeState(supabase, retake.discipline, {
+    state: "finished",
+    notified: students.length,
+    total: students.length,
+  })
 }
 
 function sleep(ms: number) {
