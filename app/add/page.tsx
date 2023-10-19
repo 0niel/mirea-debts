@@ -1,23 +1,11 @@
-import { cookies } from "next/headers"
-import Link from "next/link"
 import { redirect } from "next/navigation"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { Terminal } from "lucide-react"
+import { ListIcon } from "lucide-react"
 
 import {
   getSession,
   getUniqueDisciplines,
 } from "@/lib/supabase/supabase-server"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { RecentActivity } from "@/components/RecentActivity"
 
 import { CreationForm } from "./CreationForm"
 
@@ -33,10 +21,10 @@ export default async function Add() {
   return (
     <>
       <Alert>
-        <Terminal className="h-4 w-4" />
+        <ListIcon className="h-4 w-4" />
         <AlertTitle>Найдено {disciplines?.length} дисциплин для вас</AlertTitle>
         <AlertDescription>
-          Мы отобразим вам только те дисциплины, которые закреплены за фашей
+          Мы отобразим вам только те дисциплины, которые закреплены за вашей
           кафедрой, основываясь на вашем подразделении «
           {session.user.user_metadata.custom_claims.employee.group_name}». Если
           вы не видите какую-то дисциплину, то обратитесь к администратору.
