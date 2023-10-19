@@ -386,7 +386,7 @@ export function CreationForm(props: CreationFormProps) {
                       "студент",
                       "студента",
                       "студентов"
-                    )}
+                    )}{" "}
                     имеют задолженность по этому предмету.
                   </FormDescription>
                 )}
