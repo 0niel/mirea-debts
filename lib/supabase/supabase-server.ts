@@ -39,34 +39,6 @@ export async function getStatistics() {
   }
 }
 
-export async function getInstituteStudents(institute: string) {
-  const supabase = createServerSupabaseClient()
-  try {
-    const { data } = await supabase
-      .schema("rtu_mirea")
-      .rpc("get_students_by_institute", { _institute: institute })
-      .throwOnError()
-    return data as unknown as number
-  } catch (error) {
-    console.error("Error:", error)
-    return null
-  }
-}
-
-export async function getInstituteDebtors(institute: string) {
-  const supabase = createServerSupabaseClient()
-  try {
-    const { data } = await supabase
-      .schema("rtu_mirea")
-      .rpc("get_debtors_by_institute", { _institute: institute })
-      .throwOnError()
-    return data as unknown as number
-  } catch (error) {
-    console.error("Error:", error)
-    return null
-  }
-}
-
 export async function getUniqueDisciplines() {
   const supabase = createServerSupabaseClient()
   try {

@@ -15,6 +15,7 @@ import {
 
 import { institutesShortNames } from "@/lib/institutes"
 import { Database, Json } from "@/lib/supabase/db-types"
+import { StatisticsByInstitutes } from "@/lib/supabase/statistics-by-institutes-type"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
@@ -98,10 +99,8 @@ export default function CardsStats({
       }
 
       const instituteData = statistics.map((stat) => {
-        const byInstitutes = stat.by_institutes as {
-          [key: string]: number
-        } | null
-        const debtors = byInstitutes?.[fullInstituteName] ?? 0
+        const byInstitutes = stat.by_institutes as StatisticsByInstitutes
+        const debtors = byInstitutes?.[fullInstituteName].debtors ?? 0
         return {
           debtors,
           debts: stat.debts,
