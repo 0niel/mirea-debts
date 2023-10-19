@@ -20,9 +20,15 @@ export default async function Add() {
 
   return (
     <>
-      <Alert>
+      <Alert variant={disciplines?.length ? "default" : "destructive"}>
         <ListIcon className="h-4 w-4" />
-        <AlertTitle>Найдено {disciplines?.length} дисциплин для вас</AlertTitle>
+        <AlertTitle>
+          {disciplines?.length ? (
+            <>Найдено {disciplines?.length} дисциплин для вас</>
+          ) : (
+            <>Не найдено дисциплин для вас</>
+          )}
+        </AlertTitle>
         <AlertDescription>
           Мы отобразим вам только те дисциплины, которые закреплены за вашей
           кафедрой, основываясь на вашем подразделении «
