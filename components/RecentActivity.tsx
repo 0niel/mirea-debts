@@ -83,7 +83,7 @@ export function RecentActivity() {
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="max-h-72 overflow-y-scroll">
         <Table>
           <TableBody>
             {recentActivity?.map((retake) => (
