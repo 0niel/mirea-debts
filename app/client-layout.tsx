@@ -60,7 +60,7 @@ export default function ClientLayout({
                         width={26}
                         height={26}
                         alt="logo"
-                        className="mr-2"
+                        className="mr-2 h-7 w-7"
                       />
 
                       <Link
@@ -78,7 +78,7 @@ export default function ClientLayout({
                         width={26}
                         height={26}
                         alt="logo"
-                        className="mr-2"
+                        className="mr-2 h-7 w-7"
                       />
                       Built by Mirea Ninja
                     </p>
