@@ -82,6 +82,8 @@ export async function getAllRetakesByDebtsDisciplines(disciplines: string[]) {
           .select("*")
           .eq("discipline", discipline)
           .order("date", { ascending: true })
+          // Only active retakes
+          .filter("date", "gte", new Date().toISOString())
           .throwOnError()
         return data ?? []
       } catch (error) {

@@ -52,6 +52,8 @@ export default function SelfRetakesTable() {
           .select("*")
           .eq("creator_id", me.data.user.id)
           .order("created_at", { ascending: false })
+          // Only active retakes
+          .filter("date", "gte", new Date().toISOString())
           .limit(100)
           .throwOnError()
       ).data as unknown as Database["rtu_mirea"]["Tables"]["retakes"]["Row"][]

@@ -30,6 +30,7 @@ export function RecentActivity() {
         .from("retakes")
         .select("*")
         .order("created_at", { ascending: false })
+        // Last 30 days
         .filter(
           "created_at",
           "gte",
