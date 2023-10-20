@@ -39,10 +39,10 @@ export default async function Student() {
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Привет, {session.user.user_metadata.name}
+            Привет, {session.user.user_metadata.name}!
           </h2>
           <p className="text-muted-foreground">
-            Здесь вы можете посмотреть расписание пересдач и информацию о
+            Здесь ты можешь посмотреть расписание пересдач и информацию о своих
             задолженностях.
           </p>
         </div>

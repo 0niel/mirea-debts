@@ -56,16 +56,6 @@ export default function ClientLayout({
                   <div className="flex flex-row space-x-4 text-center text-sm leading-loose text-muted-foreground md:text-left">
                     <p className="flex">
                       <Image
-                        src="/mirea-ninja-gray.png"
-                        width={26}
-                        height={26}
-                        alt="logo"
-                        className="mr-2"
-                      />
-                      Built by Mirea Ninja
-                    </p>
-                    <p className="flex">
-                      <Image
                         src="/gerb-modified.png"
                         width={26}
                         height={26}
@@ -81,6 +71,16 @@ export default function ClientLayout({
                       >
                         Техническая поддержка
                       </Link>
+                    </p>
+                    <p className="flex">
+                      <Image
+                        src="/mirea-ninja-gray.png"
+                        width={26}
+                        height={26}
+                        alt="logo"
+                        className="mr-2"
+                      />
+                      Built by Mirea Ninja
                     </p>
                   </div>
                 </div>

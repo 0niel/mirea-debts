@@ -39,9 +39,9 @@ export function SelfRetakesTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ваши пересдачи</CardTitle>
+        <CardTitle>Твои пересдачи</CardTitle>
         <CardDescription>
-          Список актуальный пересдач для ваших академических задолженностей.
+          Список актуальный пересдач для твоих задолженностей.
         </CardDescription>
       </CardHeader>
 
@@ -102,7 +102,7 @@ export function SelfRetakesTable({
             </TableBody>
           </Table>
         ) : (
-          <p className="text-muted-foreground">Пока что пересдач нет!</p>
+          <p className="text-muted-foreground">Пока что пересдач нет.</p>
         )}
       </CardContent>
     </Card>

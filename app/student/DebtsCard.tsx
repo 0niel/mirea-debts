@@ -17,7 +17,7 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ваши задолженности</CardTitle>
+        <CardTitle>Твои задолженности</CardTitle>
         {debts.length ? (
           <CardDescription>
             Сейчас у вас {debts.length}{" "}
@@ -49,7 +49,7 @@ export default function DebtsCard({ debts }: { debts: Debts }) {
           ) : (
             <div className="flex h-64 w-full flex-col items-center justify-center">
               <p className="text-xl font-semibold text-muted-foreground">
-                Нет задолженностей
+                Нет задолженностей!
               </p>
             </div>
           )}
