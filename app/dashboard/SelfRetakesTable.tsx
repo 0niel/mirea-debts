@@ -58,7 +58,6 @@ export default function SelfRetakesTable() {
           .throwOnError()
       ).data as unknown as Database["rtu_mirea"]["Tables"]["retakes"]["Row"][]
 
-      console.log("Retakes: ", data)
       return data
     }
   )
