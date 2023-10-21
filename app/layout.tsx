@@ -1,6 +1,9 @@
 import { Metadata } from "next"
 
-import ClientLayout from "./client-layout"
+import "./globals.css"
+import { Footer } from "@/components/Footer"
+import { Header } from "@/components/Header"
+import { Providers } from "@/components/Providers"
 
 export const metadata: Metadata = {
   title: "Пересдачи РТУ МИРЭА",
@@ -12,5 +15,24 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <ClientLayout>{children}</ClientLayout>
+  return (
+    <html lang="ru">
+      <body>
+        <Providers>
+          <div className="relative flex min-h-screen flex-col">
+            <div className="flex-1">
+              <div className="flex-col md:flex">
+                <Header />
+                <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+                  {children}
+                </main>
+              </div>
+            </div>
+
+            <Footer />
+          </div>
+        </Providers>
+      </body>
+    </html>
+  )
 }
