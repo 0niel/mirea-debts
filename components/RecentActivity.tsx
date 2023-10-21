@@ -92,7 +92,6 @@ export function RecentActivity() {
                 <TableCell>
                   <div className="flex items-start">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src="/avatars/01.png" alt="Avatar" />
                       <AvatarFallback>
                         {retake.creator?.user.user_metadata.name[0]}
                         {retake.creator?.user.user_metadata.family_name[0]}
