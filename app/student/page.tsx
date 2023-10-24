@@ -20,17 +20,17 @@ import { TelegramConnectionCard } from "./TelegramConnectionCard"
 export const dynamic = "force-dynamic"
 
 export default async function Student() {
-  const session = await getSession()
+  const [session, debts, connectedSocialNetweork] = await Promise.all([
+    getSession(),
+    getOwnDebtsDisciplines(),
+    getConnectedSocialNetworks(),
+  ])
 
   if (!session?.user) redirect("/login")
-
-  const debts = await getOwnDebtsDisciplines()
 
   const retakes = await getAllRetakesByDebtsDisciplines(
     (debts ?? []).map((debt) => debt.name)
   )
-
-  const connectedSocialNetweork = await getConnectedSocialNetworks()
 
   await TelegramApi.initCallback()
 
