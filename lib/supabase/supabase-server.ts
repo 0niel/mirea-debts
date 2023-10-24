@@ -114,3 +114,23 @@ export async function getConnectedSocialNetworks() {
     return null
   }
 }
+
+export async function setEmployeeUserIdByProviderId(
+  providerId: string,
+  userId: string
+) {
+  const supabase = createServerSupabaseClient()
+  try {
+    await supabase
+      .schema("rtu_mirea")
+      .from("employees")
+      .update({
+        user_id: userId,
+      })
+      .eq("employee_uuid", providerId)
+      .throwOnError()
+  } catch (error) {
+    console.error("Error:", error)
+    return null
+  }
+}

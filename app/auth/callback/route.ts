@@ -2,6 +2,8 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
+import { setEmployeeUserIdByProviderId } from "@/lib/supabase/supabase-server"
+
 export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
@@ -13,7 +15,16 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = createRouteHandlerClient({ cookies })
-    await supabase.auth.exchangeCodeForSession(code)
+    const tokenResponse = await supabase.auth.exchangeCodeForSession(code)
+
+    if (tokenResponse.data?.user?.id) {
+      const userId = tokenResponse.data?.user?.id
+      const providerId = tokenResponse.data?.user?.user_metadata?.provider_id
+
+      if (providerId) {
+        await setEmployeeUserIdByProviderId(providerId, userId)
+      }
+    }
   }
 
   // URL to redirect to after sign in process completes

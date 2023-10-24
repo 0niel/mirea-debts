@@ -627,7 +627,31 @@ export interface Database {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chats: {
+        Row: {
+          id: string
+          payload: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          id: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -646,18 +670,21 @@ export interface Database {
     Tables: {
       debts_disciplines: {
         Row: {
+          department: string | null
           id: number
           name: string
           name_uuid: string | null
           student_uuid: string
         }
         Insert: {
+          department?: string | null
           id?: number
           name: string
           name_uuid?: string | null
           student_uuid: string
         }
         Update: {
+          department?: string | null
           id?: number
           name?: string
           name_uuid?: string | null
@@ -669,6 +696,43 @@ export interface Database {
             columns: ["student_uuid"]
             referencedRelation: "students"
             referencedColumns: ["student_uuid"]
+          }
+        ]
+      }
+      employees: {
+        Row: {
+          department: string
+          human_uuid: string
+          id: number
+          post: string
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          department: string
+          human_uuid: string
+          id?: number
+          post: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          department?: string
+          human_uuid?: string
+          id?: number
+          post?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -844,6 +908,12 @@ export interface Database {
         }
         Returns: number
       }
+      get_debts_by_institute: {
+        Args: {
+          _institute: string
+        }
+        Returns: number
+      }
       get_debts_count: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -859,6 +929,10 @@ export interface Database {
         Returns: number
       }
       get_unique_disciplines: {
+        Args: Record<PropertyKey, never>
+        Returns: string[]
+      }
+      get_unique_disciplines_uuid: {
         Args: Record<PropertyKey, never>
         Returns: string[]
       }
