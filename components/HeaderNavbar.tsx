@@ -78,7 +78,7 @@ export function HeaderNavbar({
             }
           )}
         >
-          Создание
+          Сотрудники
         </Link>
       )}
     </nav>
