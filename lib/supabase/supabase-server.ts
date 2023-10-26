@@ -127,7 +127,7 @@ export async function setEmployeeUserIdByProviderId(
       .update({
         user_id: userId,
       })
-      .eq("employee_uuid", providerId)
+      .eq("human_uuid", providerId)
       .throwOnError()
   } catch (error) {
     console.error("Error:", error)
