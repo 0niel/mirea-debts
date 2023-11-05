@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { RecentActivity } from "@/components/RecentActivity"
+import { RecentActivity } from "@/app/dashboard/RecentActivity"
 
 export const dynamic = "force-dynamic"
 

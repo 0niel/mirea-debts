@@ -2,7 +2,10 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
-import { setEmployeeUserIdByProviderId } from "@/lib/supabase/supabase-server"
+import {
+  setEmployeeUserIdByProviderId,
+  updateOwnProfile,
+} from "@/lib/supabase/supabase-server"
 
 export const dynamic = "force-dynamic"
 
@@ -23,6 +26,7 @@ export async function GET(request: Request) {
 
       if (providerId) {
         await setEmployeeUserIdByProviderId(providerId, userId)
+        await updateOwnProfile(tokenResponse.data?.user)
       }
     }
   }

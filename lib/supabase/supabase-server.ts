@@ -19,7 +19,7 @@ export async function getSession() {
     } = await supabase.auth.getSession()
     return session
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[getSession] Error:", error)
     return null
   }
 }
@@ -34,7 +34,7 @@ export async function getStatistics() {
       .throwOnError()
     return statistics
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[getStatistics] Error:", error)
     return null
   }
 }
@@ -48,7 +48,7 @@ export async function getUniqueDisciplines() {
       .throwOnError()
     return data as unknown as string[]
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[getUniqueDisciplines] Error:", error)
     return null
   }
 }
@@ -65,7 +65,7 @@ export async function getOwnDebtsDisciplines() {
       .throwOnError()
     return data
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[getOwnDebtsDisciplines] Error:", error)
     return null
   }
 }
@@ -87,7 +87,7 @@ export async function getAllRetakesByDebtsDisciplines(disciplines: string[]) {
           .throwOnError()
         return data ?? []
       } catch (error) {
-        console.error("Error:", error)
+        console.error("[getAllRetakesByDebtsDisciplines] Error:", error)
         return []
       }
     })
@@ -111,6 +111,7 @@ export async function getConnectedSocialNetworks() {
       .throwOnError()
     return data
   } catch (error) {
+    console.error("[getConnectedSocialNetworks] Error:", error)
     return null
   }
 }
@@ -120,8 +121,9 @@ export async function setEmployeeUserIdByProviderId(
   userId: string
 ) {
   const supabase = createServerSupabaseClient()
+
   try {
-    await supabase
+    const res = await supabase
       .schema("rtu_mirea")
       .from("employees")
       .update({
@@ -130,7 +132,105 @@ export async function setEmployeeUserIdByProviderId(
       .eq("human_uuid", providerId)
       .throwOnError()
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[setEmployeeUserIdByProviderId] Error:", error)
+    return null
+  }
+}
+
+export async function updateOwnProfile(user: User) {
+  const supabase = createServerSupabaseClient()
+  try {
+    await supabase
+      .schema("rtu_mirea")
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        first_name: user.user_metadata?.name,
+        last_name: user.user_metadata?.family_name,
+        second_name: user.user_metadata?.middle_name,
+        human_uuid: user.user_metadata?.provider_id,
+        email: user.email ?? "",
+      })
+      .throwOnError()
+  } catch (error) {
+    console.error("[updateOwnProfile] Error:", error)
+    return null
+  }
+}
+
+export async function getEmployeesDepartmentCount(department: string) {
+  const supabase = createServerSupabaseClient()
+  try {
+    const { count } = await supabase
+      .schema("rtu_mirea")
+      .from("employees")
+      .select("id", { count: "exact", head: true })
+      .eq("department", department)
+      .throwOnError()
+    return count
+  } catch (error) {
+    console.error("[getEmployeesDepartmentCount] Error:", error)
+    return null
+  }
+}
+
+export async function getUserDepartment(userId: string) {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .from("employees")
+      .select("department")
+      .eq("user_id", userId)
+      .single()
+      .throwOnError()
+
+    return data?.department
+  } catch (error) {
+    console.error("[getUserDepartment] Error:", error)
+    return null
+  }
+}
+
+export async function getRecentRetakes() {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .from("retakes")
+      .select("*")
+      .order("created_at", { ascending: false })
+      // Last 30 days
+      .filter(
+        "created_at",
+        "gte",
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      )
+      .limit(100)
+      .throwOnError()
+    return data
+  } catch (error) {
+    console.error("[getRecentRetakes] Error:", error)
+    return null
+  }
+}
+
+export async function getProfile(userId: string) {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single()
+      .throwOnError()
+    return data
+  } catch (error) {
+    console.error("[getProfile] Error:", error)
     return null
   }
 }

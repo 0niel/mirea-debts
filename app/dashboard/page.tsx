@@ -1,37 +1,18 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { institutes } from "@/lib/institutes"
-import { StatisticsByInstitutes } from "@/lib/supabase/statistics-by-institutes-type"
 import { getSession, getStatistics } from "@/lib/supabase/supabase-server"
 import { Button } from "@/components/ui/button"
-import CardsStats from "@/components/CardStats"
-import { RecentActivity } from "@/components/RecentActivity"
+import { Skeleton } from "@/components/ui/skeleton"
+import { RecentActivity } from "@/app/dashboard/RecentActivity"
 import SelfRetakesTable from "@/app/dashboard/SelfRetakesTable"
+
+import { ChartsCards } from "../../components/charts/ChartsCards"
 
 export const dynamic = "force-dynamic"
 
 export default async function Dashboard() {
-  const session = await getSession()
-
-  if (!session?.user) redirect("/login")
-
-  const statistics = (await getStatistics()) ?? []
-
-  const byInstitutes =
-    (statistics[statistics.length - 1]
-      .by_institutes as StatisticsByInstitutes) ?? {}
-
-  const studentsByInstitute = institutes.map((institute) => {
-    const students = byInstitutes[institute]?.students
-    return students ?? 0
-  })
-
-  const debtorsByInstitute = institutes.map((institute) => {
-    const debtors = byInstitutes[institute]?.debtors
-    return debtors ?? 0
-  })
-
   return (
     <>
       <div className="flex items-center justify-between space-y-2">
@@ -43,14 +24,27 @@ export default async function Dashboard() {
         </div>
       </div>
       <div className="space-y-4">
-        <CardsStats
-          statistics={statistics ?? []}
-          institutes={institutes}
-          studentsByInstitute={studentsByInstitute}
-          debtorsByInstitute={debtorsByInstitute}
-        />
+        <Suspense
+          fallback={
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+                <Skeleton className="h-52 w-full" />
+                <Skeleton className="h-52 w-full" />
+              </div>
+              <div>
+                <Skeleton className="h-52 w-full" />
+              </div>
+            </>
+          }
+        > 
+          {/* @ts-ignore */}
+          <ChartsCards />
+        </Suspense>
 
-        <RecentActivity />
+        <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+          {/* @ts-ignore */}
+          <RecentActivity />
+        </Suspense>
 
         <SelfRetakesTable />
       </div>

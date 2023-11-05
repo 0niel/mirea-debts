@@ -85,7 +85,7 @@ export default function SelfRetakesTable() {
       <CardHeader>
         <CardTitle>Ваши пересдачи</CardTitle>
         <CardDescription>
-          Пересдачи, которые вы создали в системе
+          Актуальные пересдачи, которые вы создали в системе
         </CardDescription>
       </CardHeader>
 
@@ -147,7 +147,9 @@ export default function SelfRetakesTable() {
             </TableBody>
           </Table>
         ) : (
-          <p className="text-muted-foreground">Пока что пересдач нет!</p>
+          <p className="text-sm text-muted-foreground">
+            Пока что актуальных пересдач нет!
+          </p>
         )}
       </CardContent>
     </Card>

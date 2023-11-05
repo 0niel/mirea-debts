@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 
-import { getSession } from "@/lib/supabase/supabase-server"
+import { getSession, getUserDepartment } from "@/lib/supabase/supabase-server"
 
-import { EmployeesPermissionsCard } from "./Employees"
+import { EmployeesPermissionsCard } from "./EmployeesPermissionsCard"
 
 export const dynamic = "force-dynamic"
 
@@ -10,6 +10,8 @@ export default async function Employees() {
   const session = await getSession()
 
   if (!session?.user) redirect("/login")
+
+  const department = await getUserDepartment(session?.user.id)
 
   return (
     <>
@@ -19,9 +21,10 @@ export default async function Employees() {
         </h2>
       </div>
       <div className="space-y-4">
+        {/* @ts-ignore */}
         <EmployeesPermissionsCard
           department={
-            session?.user.user_metadata.custom_claims.employee.group_name
+            department ?? "Не удалось получить информацию о подразделении"
           }
         />
       </div>

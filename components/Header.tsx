@@ -9,6 +9,7 @@ export function Header() {
         <HeaderNavbar />
         <div className="flex items-center space-x-4">
           <ThemeCommandMenu />
+          {/* @ts-ignore */}
           <UserNav />
         </div>
       </div>

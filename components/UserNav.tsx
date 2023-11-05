@@ -1,9 +1,9 @@
-"use client"
-
+import { cookies } from "next/headers"
 import Link from "next/link"
-import { useQuery } from "@tanstack/react-query"
+import { redirect } from "next/navigation"
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
 
-import { useSupabase } from "@/lib/supabase/supabase-provider"
+import { getSession, getUserDepartment } from "@/lib/supabase/supabase-server"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,26 +17,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export function UserNav() {
-  const { supabase } = useSupabase()
+export async function UserNav() {
+  const session = await getSession()
 
-  const { data } = useQuery(["user"], () => supabase.auth.getUser(), {
-    staleTime: Infinity,
-  })
+  const department = await getUserDepartment(session?.user.id ?? "")
 
   const getInitialsName = () => {
     try {
       return (
-        data?.data.user?.user_metadata["name"][0] +
+        session?.user?.user_metadata["name"][0] +
         " " +
-        data?.data.user?.user_metadata["family_name"][0]
+        session?.user?.user_metadata["family_name"][0]
       )
     } catch {
       return ""
     }
   }
 
-  return data?.data.user ? (
+  const signOut = async (formData: FormData) => {
+    "use server"
+
+    const supabase = createServerActionClient({ cookies })
+
+    await supabase.auth.signOut()
+
+    redirect("/")
+  }
+
+  return session?.user ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -46,28 +54,32 @@ export function UserNav() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {data?.data.user?.user_metadata.name}{" "}
-              {data?.data.user?.user_metadata.family_name}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {data?.data.user?.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => {
-            supabase.auth.signOut().then(() => {
-              window.location.reload()
-            })
-          }}
-        >
-          Выйти
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        <form action={signOut}>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {session.user?.user_metadata.name}{" "}
+                {session.user?.user_metadata.family_name}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {department ?? ""}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {session.user?.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <button
+              type="submit"
+              className="flex w-full flex-row items-center justify-between"
+            >
+              Выйти
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            </button>
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   ) : (

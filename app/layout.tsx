@@ -1,6 +1,9 @@
 import { Metadata } from "next"
 
 import "./globals.css"
+import { Inter as FontSans } from "next/font/google"
+
+import { cn } from "@/lib/utils"
 import { Footer } from "@/components/Footer"
 import { Header } from "@/components/Header"
 import { Providers } from "@/components/Providers"
@@ -10,6 +13,11 @@ export const metadata: Metadata = {
   description: "Расписание пересдач и информация о задолженностях",
 }
 
+export const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
+
 export default function RootLayout({
   children,
 }: {
@@ -17,7 +25,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body>
+      <body
+        className={cn(
+          "bg-background font-sans antialiased ",
+          fontSans.variable
+        )}
+      >
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <div className="flex-1">

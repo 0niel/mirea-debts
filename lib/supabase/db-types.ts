@@ -705,7 +705,6 @@ export interface Database {
           human_uuid: string
           id: number
           post: string
-          status: string | null
           updated_at: string
           user_id: string | null
         }
@@ -714,7 +713,6 @@ export interface Database {
           human_uuid: string
           id?: number
           post: string
-          status?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -723,7 +721,6 @@ export interface Database {
           human_uuid?: string
           id?: number
           post?: string
-          status?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -731,6 +728,71 @@ export interface Database {
           {
             foreignKeyName: "employees_user_id_fkey"
             columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      extended_permissions: {
+        Row: {
+          created_at: string
+          id: number
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extended_permissions_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          human_uuid: string
+          id: string
+          last_name: string
+          second_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          human_uuid: string
+          id: string
+          last_name: string
+          second_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          human_uuid?: string
+          id?: string
+          last_name?: string
+          second_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -935,6 +997,22 @@ export interface Database {
       get_unique_disciplines_uuid: {
         Args: Record<PropertyKey, never>
         Returns: string[]
+      }
+      get_user_department: {
+        Args: {
+          _user_id: string
+        }
+        Returns: string
+      }
+      is_employee: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_user_have_human_uuid: {
+        Args: {
+          _human_uuid: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
