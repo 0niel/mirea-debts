@@ -63,15 +63,11 @@ const profileFormSchema = z.object({
     })
     .min(1),
   description: z.string().optional(),
-  teachers: z
-    .array(
-      z.object({
-        value: z.string().min(3, { message: "Введите имя преподавателя." }),
-      })
-    )
-    .min(1, {
-      message: "Введите хотя бы одного преподавателя.",
-    }),
+  teachers: z.array(
+    z.object({
+      value: z.string().min(3, { message: "Введите имя преподавателя." }),
+    })
+  ),
   date: z.date({
     required_error: "Выберите дату и время.",
   }),
@@ -443,8 +439,7 @@ export function CreationForm(props: CreationFormProps) {
             )}
           />
 
-          {/*
-    <Notifications /> */}
+          {/* <Notifications /> */}
 
           <div>
             <div className={cn(fields.length !== 0 && "sr-only")}>
