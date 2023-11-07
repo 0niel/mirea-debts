@@ -24,6 +24,7 @@ export default function Add() {
           </div>
         }
       >
+        {/* @ts-ignore */}
         <ContentWithDisciplines />
       </Suspense>
     </>

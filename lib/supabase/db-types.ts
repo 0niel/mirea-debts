@@ -994,6 +994,12 @@ export interface Database {
         Args: Record<PropertyKey, never>
         Returns: string[]
       }
+      get_unique_disciplines_by_department: {
+        Args: {
+          _department: string
+        }
+        Returns: string[]
+      }
       get_unique_disciplines_uuid: {
         Args: Record<PropertyKey, never>
         Returns: string[]
@@ -1003,16 +1009,6 @@ export interface Database {
           _user_id: string
         }
         Returns: string
-      }
-      is_employee: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_user_have_human_uuid: {
-        Args: {
-          _human_uuid: string
-        }
-        Returns: boolean
       }
     }
     Enums: {
