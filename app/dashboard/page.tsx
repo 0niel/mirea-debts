@@ -36,7 +36,7 @@ export default async function Dashboard() {
               </div>
             </>
           }
-        > 
+        >
           {/* @ts-ignore */}
           <ChartsCards />
         </Suspense>

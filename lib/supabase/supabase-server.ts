@@ -39,12 +39,14 @@ export async function getStatistics() {
   }
 }
 
-export async function getUniqueDisciplines() {
+export async function getUniqueDisciplinesByDepartment(department: string) {
   const supabase = createServerSupabaseClient()
   try {
     const { data } = await supabase
       .schema("rtu_mirea")
-      .rpc("get_unique_disciplines")
+      .rpc("get_unique_disciplines_by_department", {
+        _department: department,
+      })
       .throwOnError()
     return data as unknown as string[]
   } catch (error) {

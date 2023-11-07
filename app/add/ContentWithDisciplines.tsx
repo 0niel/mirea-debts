@@ -1,9 +1,8 @@
 import { ListIcon } from "lucide-react"
 
-import { useSupabase } from "@/lib/supabase/supabase-provider"
 import {
   getSession,
-  getUniqueDisciplines,
+  getUniqueDisciplinesByDepartment,
   getUserDepartment,
 } from "@/lib/supabase/supabase-server"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -11,12 +10,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CreationForm } from "./CreationForm"
 
 export default async function ContentWithDisciplines() {
-  const [disciplines, session] = await Promise.all([
-    getUniqueDisciplines(),
-    getSession(),
-  ])
+  const session = await getSession()
 
   const department = await getUserDepartment(session?.user.id ?? "")
+
+  const disciplines = await getUniqueDisciplinesByDepartment(department ?? "")
 
   return (
     <>
