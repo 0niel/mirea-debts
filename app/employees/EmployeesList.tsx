@@ -6,8 +6,10 @@ import plural from "plural-ru"
 
 import { Database } from "@/lib/supabase/db-types"
 import { useSupabase } from "@/lib/supabase/supabase-provider"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import { Employee } from "./Employee"
+import { EmployeesFilter } from "./EmployeesFilter"
 import { EmployeesPagination } from "./EmployeesPagination"
 
 type Employee = Database["rtu_mirea"]["Tables"]["employees"]["Row"]
@@ -22,6 +24,9 @@ export function EmployeesList({
 }) {
   const { supabase } = useSupabase()
 
+  const [unauthorizedEmployeesCount, setUnauthorizedEmployeesCount] =
+    useState(0)
+
   const [count, setCount] = useState(employeesCount)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -30,70 +35,106 @@ export function EmployeesList({
     data: employees,
     error,
     isLoading,
-  } = useQuery(["employees", page, pageSize], async () => {
-    const { data } = (await supabase
-      .schema("rtu_mirea")
-      .from("employees")
-      .select("*")
-      .eq("department", department)
-      .order("post", { ascending: false })
-      .range(page - 1, pageSize)
-      .throwOnError()) as unknown as { data: Employee[] }
+  } = useQuery(
+    ["employees", page, pageSize],
+    async () => {
+      const { data } = (await supabase
+        .schema("rtu_mirea")
+        .from("employees")
+        .select("*")
+        .eq("department", department)
+        .order("post", { ascending: false })
+        .range((page - 1) * pageSize, page * pageSize - 1)
+        .throwOnError()) as unknown as { data: Employee[] }
 
-    const profiles = (await Promise.all(
-      data
-        .filter((employee) => employee.user_id)
-        .map((employee) => {
-          return supabase
-            .schema("rtu_mirea")
-            .from("profiles")
-            .select("*")
-            .eq("id", employee.user_id!)
-            .single()
-            .throwOnError()
-        })
-    )) as unknown as Profile[]
+      const profiles = (
+        await Promise.all(
+          data
+            .filter((employee) => employee.user_id)
+            .map((employee) => {
+              return supabase
+                .schema("rtu_mirea")
+                .from("profiles")
+                .select("*")
+                .eq("id", employee.user_id!)
+                .single()
+                .throwOnError()
+            })
+        )
+      ).map((res) => res.data) as Profile[]
 
-    const res = data
-      .filter((employee) => employee.user_id)
-      .map((employee) => {
+      const res = data.map((employee) => {
         return {
           ...employee,
           profile: profiles.find((profile) => profile.id === employee.user_id),
         }
       })
 
-    setCount(res.length)
+      const { count } = await supabase
+        .schema("rtu_mirea")
+        .from("employees")
+        .select("id", { count: "exact", head: true })
+        .eq("department", department)
 
-    return res
-  })
+      setCount(count ?? 0)
+      setUnauthorizedEmployeesCount(
+        employeesCount - res.filter((employee) => employee.user_id).length
+      )
+
+      return res.sort((a, b) => {
+        if (!a.profile || !b.profile) return 0
+
+        return a.profile.first_name.localeCompare(b.profile.first_name)
+      })
+    },
+    {
+      enabled: !!department,
+      refetchOnWindowFocus: false,
+    }
+  )
+
+  useEffect(() => {
+    setPage(1)
+  }, [pageSize])
 
   return (
-    <div className="flex flex-col space-y-4">
-      {employees?.map((employee) => (
-        <Employee key={employee.id} employee={employee} />
-      ))}
+    <>
+      <EmployeesFilter />
+      <div className="flex flex-col space-y-4">
+        {isLoading &&
+          Array.from({ length: pageSize }).map((_, i) => (
+            <div key={i} className="flex flex-row items-center justify-between">
+              <Skeleton key={i} className="h-10 w-80" />
+              <Skeleton key={i} className="h-10 w-24" />
+            </div>
+          ))}
 
-      {employeesCount - count > 0 && (
-        <p className="text-muted-foreground">
-          И ещё {employeesCount - count}{" "}
-          {plural(
-            employeesCount - count,
-            "сотрудник",
-            "сотрудника",
-            "сотрудников"
-          )}{" "}
-          не авторизованы в системе
-        </p>
-      )}
+        {!isLoading &&
+          employees?.map((employee) => (
+            <Employee key={employee.id} employee={employee} />
+          ))}
 
-      <EmployeesPagination
-        count={count}
-        page={page}
-        pageSize={pageSize}
-        setPage={setPage}
-        setPageSize={setPageSize}
-      />
-    </div>
+        {unauthorizedEmployeesCount > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {unauthorizedEmployeesCount}{" "}
+            {plural(
+              unauthorizedEmployeesCount,
+              "сотрудник",
+              "сотрудника",
+              "сотрудников"
+            )}{" "}
+            не авторизованы в системе
+          </p>
+        )}
+
+        <EmployeesPagination
+          count={count}
+          page={page}
+          pageSize={pageSize}
+          setPage={setPage}
+          setPageSize={setPageSize}
+        />
+      </div>
+    </>
   )
 }

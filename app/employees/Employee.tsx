@@ -26,23 +26,32 @@ export interface EmployeeProps {
   }
 }
 
+const getName = (employee: Employee & { profile?: Profile }) => {
+  if (employee.profile) {
+    return `${employee.profile?.first_name} ${employee.profile?.last_name}`
+  }
+
+  return "Неизвестный"
+}
+
 export function Employee({ employee }: EmployeeProps) {
   return (
     <div className="flex items-center justify-between space-x-4">
       <div className="flex items-center space-x-4">
         <Avatar>
-          <AvatarImage src="/avatars/01.png" />
           <AvatarFallback>
             {employee.profile?.first_name[0]} {employee.profile?.last_name[0]}
           </AvatarFallback>
         </Avatar>
         <div>
           <p className="text-sm font-medium leading-none">
-            {employee.profile?.first_name} {employee.profile?.last_name}
+            {getName(employee)}
+            <span className="ml-2 text-sm text-muted-foreground">
+              {employee.profile?.email}
+            </span>
           </p>
-          <p className="text-sm text-muted-foreground">
-            {employee.profile?.email}
-          </p>
+
+          <p className="text-sm text-muted-foreground">{employee.post}</p>
         </div>
       </div>
       <Popover>

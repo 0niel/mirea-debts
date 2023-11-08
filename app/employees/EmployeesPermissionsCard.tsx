@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card"
 
 import { Employee } from "./Employee"
+import { EmployeesFilter } from "./EmployeesFilter"
 import { EmployeesList } from "./EmployeesList"
 
 export async function EmployeesPermissionsCard({
