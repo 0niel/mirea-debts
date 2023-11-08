@@ -16,7 +16,7 @@ export default async function ContentWithDisciplines() {
 
   const disciplines = await getUniqueDisciplinesByDepartment(department ?? "")
 
-  // В названии дисциплин убираем номер предмета, семестр, тип=
+  // В названии дисциплин убираем номер предмета, семестр, тип
   const disciplinesNames = disciplines
     ?.map((discipline) => {
       const regex = /(.*) \((.*)\)/
@@ -31,7 +31,7 @@ export default async function ContentWithDisciplines() {
         <ListIcon className="h-4 w-4" />
         <AlertTitle>
           {disciplines?.length ? (
-            <>Найдено {disciplines?.length} дисциплин для вас</>
+            <>Найдено {disciplinesNames?.length} дисциплин для вас</>
           ) : (
             <>Не найдено дисциплин для вас</>
           )}
@@ -41,7 +41,8 @@ export default async function ContentWithDisciplines() {
           кафедрой, основываясь на вашем подразделении «
           {department ??
             session?.user.user_metadata.custom_claims.employee.group_name}
-          ». не видите какую-то дисциплину, то обратитесь к администратору.
+          ». Если вы не видите какую-то дисциплину, то обратитесь к
+          администратору.
         </AlertDescription>
       </Alert>
       <div className="flex items-center justify-between space-y-2">

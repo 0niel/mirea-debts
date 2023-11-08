@@ -1010,6 +1010,19 @@ export interface Database {
         }
         Returns: string
       }
+      search_employees_by_name: {
+        Args: {
+          _name: string
+        }
+        Returns: {
+          department: string
+          human_uuid: string
+          id: number
+          post: string
+          updated_at: string
+          user_id: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

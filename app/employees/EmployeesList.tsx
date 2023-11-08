@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Transition } from "@headlessui/react"
 import { useQuery } from "@tanstack/react-query"
 import plural from "plural-ru"
 
@@ -32,25 +33,42 @@ export function EmployeesList({
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
+  const [searchQuery, setSearchQuery] = useState("")
+
   const {
     data: employees,
     error,
     isLoading,
   } = useQuery(
-    ["employees", page, pageSize],
+    ["employees", page, pageSize, searchQuery],
     async () => {
-      const { data } = (await supabase
-        .schema("rtu_mirea")
-        .from("employees")
-        .select("*")
-        .eq("department", department)
-        .order("post", { ascending: false })
-        .range((page - 1) * pageSize, page * pageSize - 1)
-        .throwOnError()) as unknown as { data: Employee[] }
+      let employees
+
+      if (!searchQuery) {
+        const { data } = (await supabase
+          .schema("rtu_mirea")
+          .from("employees")
+          .select("*")
+          .eq("department", department)
+          .order("post", { ascending: false })
+          .range((page - 1) * pageSize, page * pageSize - 1)
+          .throwOnError()) as unknown as { data: Employee[] }
+
+        employees = data ?? []
+      } else {
+        const { data } = await supabase
+          .schema("rtu_mirea")
+          .rpc("search_employees_by_name", {
+            _name: searchQuery,
+          })
+          .throwOnError()
+
+        employees = data ?? []
+      }
 
       const profiles = (
         await Promise.all(
-          data
+          employees
             .filter((employee) => employee.user_id)
             .map((employee) => {
               return supabase
@@ -64,7 +82,7 @@ export function EmployeesList({
         )
       ).map((res) => res.data) as Profile[]
 
-      const res = data.map((employee) => {
+      const res = employees.map((employee) => {
         return {
           ...employee,
           profile: profiles.find((profile) => profile.id === employee.user_id),
@@ -100,10 +118,14 @@ export function EmployeesList({
 
   return (
     <>
-      <EmployeesFilter />
+      <EmployeesFilter
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
       <ScrollArea className="mt-4">
         <div className="flex flex-col space-y-4">
           <ScrollBar orientation="horizontal" />
+
           {isLoading &&
             Array.from({ length: pageSize }).map((_, i) => (
               <div

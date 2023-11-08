@@ -236,3 +236,21 @@ export async function getProfile(userId: string) {
     return null
   }
 }
+
+export async function searchEmployeesByName(name: string) {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .rpc("search_employees_by_name", {
+        _name: name,
+      })
+      .throwOnError()
+
+    return data
+  } catch (error) {
+    console.error("[searchEmployeeByName] Error:", error)
+    return null
+  }
+}
