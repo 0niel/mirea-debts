@@ -6,6 +6,7 @@ import plural from "plural-ru"
 
 import { Database } from "@/lib/supabase/db-types"
 import { useSupabase } from "@/lib/supabase/supabase-provider"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { Employee } from "./Employee"
@@ -100,41 +101,47 @@ export function EmployeesList({
   return (
     <>
       <EmployeesFilter />
-      <div className="flex flex-col space-y-4">
-        {isLoading &&
-          Array.from({ length: pageSize }).map((_, i) => (
-            <div key={i} className="flex flex-row items-center justify-between">
-              <Skeleton key={i} className="h-10 w-80" />
-              <Skeleton key={i} className="h-10 w-24" />
-            </div>
-          ))}
+      <ScrollArea className="mt-4">
+        <div className="flex flex-col space-y-4">
+          <ScrollBar orientation="horizontal" />
+          {isLoading &&
+            Array.from({ length: pageSize }).map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-row items-center justify-between"
+              >
+                <Skeleton key={i} className="h-10 w-80" />
+                <Skeleton key={i} className="h-10 w-24" />
+              </div>
+            ))}
 
-        {!isLoading &&
-          employees?.map((employee) => (
-            <Employee key={employee.id} employee={employee} />
-          ))}
+          {!isLoading &&
+            employees?.map((employee) => (
+              <Employee key={employee.id} employee={employee} />
+            ))}
 
-        {unauthorizedEmployeesCount > 0 && (
-          <p className="text-sm text-muted-foreground">
-            {unauthorizedEmployeesCount}{" "}
-            {plural(
-              unauthorizedEmployeesCount,
-              "сотрудник",
-              "сотрудника",
-              "сотрудников"
-            )}{" "}
-            не авторизованы в системе
-          </p>
-        )}
+          {unauthorizedEmployeesCount > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {unauthorizedEmployeesCount}{" "}
+              {plural(
+                unauthorizedEmployeesCount,
+                "сотрудник",
+                "сотрудника",
+                "сотрудников"
+              )}{" "}
+              не авторизованы в системе
+            </p>
+          )}
 
-        <EmployeesPagination
-          count={count}
-          page={page}
-          pageSize={pageSize}
-          setPage={setPage}
-          setPageSize={setPageSize}
-        />
-      </div>
+          <EmployeesPagination
+            count={count}
+            page={page}
+            pageSize={pageSize}
+            setPage={setPage}
+            setPageSize={setPageSize}
+          />
+        </div>
+      </ScrollArea>
     </>
   )
 }
