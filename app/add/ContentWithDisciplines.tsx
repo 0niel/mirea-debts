@@ -16,6 +16,15 @@ export default async function ContentWithDisciplines() {
 
   const disciplines = await getUniqueDisciplinesByDepartment(department ?? "")
 
+  // В названии дисциплин убираем номер предмета, семестр, тип=
+  const disciplinesNames = disciplines
+    ?.map((discipline) => {
+      const regex = /(.*) \((.*)\)/
+      const matches = regex.exec(discipline)
+      return matches?.length ? matches[1] : discipline
+    })
+    .filter((value, index, self) => self.indexOf(value) === index)
+
   return (
     <>
       <Alert variant={disciplines?.length ? "default" : "destructive"}>
@@ -41,7 +50,10 @@ export default async function ContentWithDisciplines() {
         </h2>
       </div>
       <div className="space-y-4">
-        <CreationForm disciplines={disciplines ?? []} />
+        <CreationForm
+          disciplines={disciplines ?? []}
+          disciplinesNames={disciplinesNames ?? []}
+        />
       </div>
     </>
   )

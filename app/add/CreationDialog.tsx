@@ -22,129 +22,96 @@ import { useToast } from "@/components/ui/use-toast"
 export function ConfirmationDialog({
   open,
   setOpen,
-  retake,
+  retakes,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
-  retake: Database["rtu_mirea"]["Tables"]["retakes"]["Insert"] | null
+  retakes: Database["rtu_mirea"]["Tables"]["retakes"]["Insert"][] | null
 }) {
   const { supabase } = useSupabase()
   const { toast } = useToast()
   const router = useRouter()
 
-  const [notificationsState, setNotificationsState] =
-    useState<NotificationRealtimeState | null>(null)
-
-  const getChannelName = () => {
-    if (!retake) throw new Error("Retake is not defined")
-
-    return retake.discipline
-  }
-
-  useEffect(() => {
-    if (!retake) return
-
-    const channel = supabase.channel(getChannelName()).subscribe()
-
-    channel.on(
-      "broadcast",
-      {
-        event: "sync",
-      },
-      (payload) => {
-        const state = payload["payload"] as NotificationRealtimeState
-        setNotificationsState(state)
-      }
-    )
-  }, [retake, supabase])
-
   const handleSubmit = async () => {
-    if (!retake) return
+    if (!retakes) return
 
-    const { error } = await supabase
-      .schema("rtu_mirea")
-      .from("retakes")
-      .insert(retake)
+    const res = await Promise.all(
+      retakes.map((retake) => {
+        return supabase.schema("rtu_mirea").from("retakes").insert(retake)
+      })
+    )
 
-    if (error) {
+    if (res.some((r) => r.error)) {
       toast({
         variant: "destructive",
         title: "ОЙ! Что-то пошло не так.",
         description: "Произошла ошибка при создании пересдачи.",
       })
 
-      console.error(error)
+      console.error(res)
       return
     }
+
+    Promise.all(
+      retakes.map(async (retake) => {
+        return await fetch("/api/messengers/send-notifications", {
+          method: "POST",
+          body: JSON.stringify({
+            retake: retake,
+          }),
+        })
+      })
+    )
 
     toast({
       title: "Успешно!",
       description: "Пересдача успешно создана.",
     })
 
-    fetch("/api/messengers/send-notifications", {
-      method: "POST",
-      body: JSON.stringify({
-        retake: retake,
-      }),
-    })
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    setOpen(false)
+
+    router.push("/dashboard")
   }
-
-  useEffect(() => {
-    if (!notificationsState) return
-
-    if (notificationsState.state === "finished") {
-      if (retake) {
-        const channel = supabase.channel(getChannelName()).subscribe()
-
-        channel.unsubscribe()
-      }
-
-      setOpen(false)
-
-      router.push("/dashboard")
-    }
-  }, [notificationsState, supabase, retake])
 
   return (
     <Dialog open={open}>
-      {!notificationsState && (
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Создать пересдачу?</DialogTitle>
-            <DialogDescription>
-              <span>
-                Вы уверены, что хотите создать пересдачу по предмету{" "}
-                {retake?.discipline} на {retake?.date} в {retake?.time_start}?
-              </span>
-              <br />
-              <span> Мы разошлём уведомления студентам о новой пересдаче.</span>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={() => setOpen(false)} variant="secondary">
-              Отмена
-            </Button>
-            <Button onClick={handleSubmit}>Создать</Button>
-          </DialogFooter>
-        </DialogContent>
-      )}
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Создать пересдачу?</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-sm text-gray-500">
+            Вы уверены, что хотите создать пересдачу по предметам:
+          </p>
+          <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
+            {retakes?.map((retake) => (
+              <li
+                key={retake.discipline}
+                className="text-sm font-medium text-gray-900"
+              >
+                {retake.discipline},
+              </li>
+            ))}
+          </ul>
 
-      {notificationsState && (
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Рассылка уведомлений</DialogTitle>
-            <DialogDescription>
-              Мы рассылаем уведомления для {notificationsState.total} студентов.
-              Страница автоматически перезагрузкится, когда рассылка закончится.
-            </DialogDescription>
-          </DialogHeader>
-          <Progress
-            value={notificationsState.notified}
-            max={notificationsState.total}
-          />
-        </DialogContent>
-      )}
+          <p className="text-sm text-gray-500">
+            Пересдача будет назначена на {retakes?.[0].date} в{" "}
+            {retakes?.[0].time_start}.
+          </p>
+
+          <p className="text-sm text-gray-500">
+            Мы разошлём уведомления студентам о новой пересдаче.
+          </p>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => setOpen(false)} variant="secondary">
+            Отмена
+          </Button>
+          <Button onClick={handleSubmit}>Создать</Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   )
 }

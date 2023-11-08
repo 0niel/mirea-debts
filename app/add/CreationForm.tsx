@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { Transition } from "@headlessui/react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -129,7 +129,10 @@ function DatePicker({
 const defaultValues = {}
 
 interface CreationFormProps {
+  // Все дисциплины с учётом номера предмета, семестра и типа (экзамен/зачёт)
   disciplines: string[]
+  // Уникальные названия дисциплин
+  disciplinesNames: string[]
 }
 
 export function CreationForm(props: CreationFormProps) {
@@ -148,110 +151,155 @@ export function CreationForm(props: CreationFormProps) {
   })
 
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false)
-  const [retakeToInsert, setRetakeToInsert] = useState<
-    Database["rtu_mirea"]["Tables"]["retakes"]["Insert"] | null
+
+  const [retakesToInsert, setRetakesToInsert] = useState<
+    Database["rtu_mirea"]["Tables"]["retakes"]["Insert"][] | null
   >(null)
 
-  async function onSubmit(data: ProfileFormValues) {
-    const retakes = await supabase
-      .schema("rtu_mirea")
-      .from("retakes")
-      .select("*")
-      .eq("discipline", data.discipline)
+  const [selectedDisciplines, setSelectedDisciplines] = useState<
+    { name: string; checked: boolean }[]
+  >([])
 
-    if (
-      retakes?.data?.length !== 0 &&
-      retakes?.data?.some(
-        (retake) => retake?.date === data.date.toISOString().split("T")[0]
+  const getDisciplinesByName = (name: string) => {
+    return props.disciplines.filter((discipline) => discipline.includes(name))
+  }
+
+  useEffect(() => {
+    if (form.watch("discipline")) {
+      setSelectedDisciplines(
+        getDisciplinesByName(form.watch("discipline")).map((discipline) => ({
+          name: discipline,
+          checked: true,
+        }))
       )
-    ) {
+    }
+  }, [form.watch("discipline")])
+
+  async function onSubmit(data: ProfileFormValues) {
+    const retakesResult = []
+
+    for (const discipline of selectedDisciplines) {
+      if (!discipline.checked) continue
+
+      const retakes = await supabase
+        .schema("rtu_mirea")
+        .from("retakes")
+        .select("*")
+        .eq("discipline", discipline.name)
+
+      if (
+        retakes?.data?.length !== 0 &&
+        retakes?.data?.some(
+          (retake) => retake?.date === data.date.toISOString().split("T")[0]
+        )
+      ) {
+        toast({
+          variant: "destructive",
+          title: "ОЙ! Что-то пошло не так.",
+          description:
+            "Для этого предмета уже назначена пересдача в этот день.",
+        })
+
+        return
+      }
+
+      try {
+        const now = new Date()
+        const date = data.date
+        date.setHours(parseInt(data.time_start.split(":")[0]))
+        if (date.getTime() - now.getTime() < 24 * 60 * 60 * 1000) {
+          if (
+            !confirm(
+              "Вы создаёте пересдачу, до которой с момента её создания пройдёт менее 24 часов. Мы рекомендуем создавать пересдачи заранее. Вы уверены, что хотите создать пересдачу?"
+            )
+          ) {
+            return
+          }
+        } else if (now.getHours() >= 23 || now.getHours() <= 5) {
+          if (
+            !confirm(
+              "Мы отправим уведомление всем студентам, которые имеют задолженность по этому предмету. Вы уверены, что хотите создать пересдачу сейчас? "
+            )
+          ) {
+            return
+          }
+        }
+      } catch (e) {
+        console.error(e)
+      }
+
+      const teachers = data.teachers
+        .map((teacher) => teacher.value.trim().replace(",", " "))
+        .filter((teacher) => teacher !== "")
+        .join(", ")
+
+      const retake = {
+        place: data.place,
+        discipline: discipline.name,
+        description: data.description,
+        teachers,
+        date: data.date.toISOString().split("T")[0],
+        time_start: data.time_start,
+        time_end: data.time_end,
+        need_statement: data.need_statement,
+        is_online: data.is_online,
+      }
+
+      retakesResult.push(retake)
+    }
+
+    if (retakesResult.length === 0) {
       toast({
         variant: "destructive",
         title: "ОЙ! Что-то пошло не так.",
-        description: "Для этого предмета уже назначена пересдача в этот день.",
+        description: "Выберите хотя бы один предмет.",
       })
 
       return
+    } else {
+      setRetakesToInsert(retakesResult)
+      setConfirmationDialogOpen(true)
     }
-
-    try {
-      const now = new Date()
-      const date = data.date
-      date.setHours(parseInt(data.time_start.split(":")[0]))
-      if (date.getTime() - now.getTime() < 24 * 60 * 60 * 1000) {
-        if (
-          !confirm(
-            "Вы создаёте пересдачу, до которой с момента её создания пройдёт менее 24 часов. Мы рекомендуем создавать пересдачи заранее. Вы уверены, что хотите создать пересдачу?"
-          )
-        ) {
-          return
-        }
-      } else if (now.getHours() >= 23 || now.getHours() <= 5) {
-        if (
-          !confirm(
-            "Мы отправим уведомление всем студентам, которые имеют задолженность по этому предмету. Вы уверены, что хотите создать пересдачу сейчас? "
-          )
-        ) {
-          return
-        }
-      }
-    } catch (e) {
-      console.error(e)
-    }
-
-    const teachers = data.teachers
-      .map((teacher) => teacher.value.trim().replace(",", " "))
-      .filter((teacher) => teacher !== "")
-      .join(", ")
-
-    const retake = {
-      place: data.place,
-      discipline: data.discipline,
-      description: data.description,
-      teachers,
-      date: data.date.toISOString().split("T")[0],
-      time_start: data.time_start,
-      time_end: data.time_end,
-      need_statement: data.need_statement,
-      is_online: data.is_online,
-    }
-
-    setRetakeToInsert(retake)
   }
 
-  const [filteredDisciplines, setFilteredDisciplines] = useState(
-    props.disciplines.slice(0, 100)
+  const [filteredDisciplinesNames, setFilteredDisciplinesNames] = useState(
+    props.disciplinesNames.slice(0, 100)
   )
 
-  const { data: debtorsDisciplines } = useQuery(
+  const {
+    data: debtorsDisciplines,
+    isFetched,
+    isLoading,
+  } = useQuery(
     [form.watch("discipline")],
     async () => {
-      const { data } = await supabase
-        .schema("rtu_mirea")
-        .from("debts_disciplines")
-        .select("*")
-        .eq("name", form.watch("discipline"))
-        .throwOnError()
+      const disciplines = getDisciplinesByName(form.watch("discipline"))
+      const res = await Promise.all(
+        disciplines.map((discipline) => {
+          return supabase
+            .schema("rtu_mirea")
+            .from("debts_disciplines")
+            .select("*", { count: "exact", head: true })
+            .eq("name", discipline)
+        })
+      )
 
-      return data
+      return disciplines.map((discipline, index) => ({
+        name: discipline,
+        count: res[index].count,
+      }))
     },
     {
       enabled: form.watch("discipline") !== undefined,
     }
   )
 
-  useEffect(() => {
-    if (retakeToInsert) {
-      setConfirmationDialogOpen(true)
-    }
-  }, [retakeToInsert])
-
   return (
     <>
       <ConfirmationDialog
         open={confirmationDialogOpen}
         setOpen={setConfirmationDialogOpen}
-        retake={retakeToInsert}
+        retakes={retakesToInsert}
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -322,7 +370,7 @@ export function CreationForm(props: CreationFormProps) {
                         role="combobox"
                         className="w-full justify-between"
                       >
-                        {props.disciplines.find(
+                        {props.disciplinesNames.find(
                           (discipline) => discipline === field.value
                         ) ?? "Выберите предмет"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -334,7 +382,7 @@ export function CreationForm(props: CreationFormProps) {
                       <CommandInput
                         placeholder="Поиск предмета..."
                         onValueChange={(value) => {
-                          const newDisciplines = props.disciplines
+                          const newDisciplines = props.disciplinesNames
                             .filter((discipline) => {
                               const words = value.split(" ")
                               return words.every((word) => {
@@ -344,13 +392,13 @@ export function CreationForm(props: CreationFormProps) {
                             })
                             .slice(0, 100)
 
-                          setFilteredDisciplines(newDisciplines)
+                          setFilteredDisciplinesNames(newDisciplines)
                         }}
                       />
                       <CommandEmpty>Предмет не найден.</CommandEmpty>
                       <CommandGroup>
                         <ScrollArea className="h-[320px]">
-                          {filteredDisciplines.map((discipline) => (
+                          {filteredDisciplinesNames.map((discipline) => (
                             <CommandItem
                               key={discipline}
                               onSelect={() => {
@@ -373,24 +421,80 @@ export function CreationForm(props: CreationFormProps) {
                     </Command>
                   </PopoverContent>
                 </Popover>
-
-                {debtorsDisciplines && (
-                  <FormDescription>
-                    {debtorsDisciplines.length}{" "}
-                    {plural(
-                      debtorsDisciplines.length,
-                      "студент",
-                      "студента",
-                      "студентов"
-                    )}{" "}
-                    имеют задолженность по этому предмету.
-                  </FormDescription>
-                )}
-
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          <Transition
+            show={selectedDisciplines.length !== 0}
+            enter="transition transform duration-300"
+            enterFrom="opacity-0 -translate-y-2"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition transform duration-300"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 -translate-y-2"
+          >
+            <div className="space-y-2">
+              {selectedDisciplines.map((discipline) => (
+                <div className="items-top flex space-x-2">
+                  <Checkbox
+                    id={discipline.name}
+                    checked={discipline.checked}
+                    onCheckedChange={(checked: boolean) => {
+                      setSelectedDisciplines(
+                        selectedDisciplines.map((d) =>
+                          d.name === discipline.name
+                            ? { ...d, checked }
+                            : { ...d }
+                        )
+                      )
+                    }}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <label
+                      htmlFor={discipline.name}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {discipline.name}
+                    </label>
+
+                    <Transition
+                      show={isFetched && !isLoading}
+                      enter="transition transform duration-300"
+                      enterFrom="opacity-0 -translate-y-2"
+                      enterTo="opacity-100 translate-y-0"
+                    >
+                      <p className="text-sm text-muted-foreground">
+                        {
+                          debtorsDisciplines?.find(
+                            (d) => d.name === discipline.name
+                          )?.count
+                        }{" "}
+                        {plural(
+                          debtorsDisciplines?.find(
+                            (d) => d.name === discipline.name
+                          )?.count ?? 0,
+                          "студент",
+                          "студента",
+                          "студентов"
+                        )}{" "}
+                        {plural(
+                          debtorsDisciplines?.find(
+                            (d) => d.name === discipline.name
+                          )?.count ?? 0,
+                          "имеет",
+                          "имеют",
+                          "имеют"
+                        )}{" "}
+                        задолженность по этому предмету.
+                      </p>
+                    </Transition>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Transition>
 
           <FormField
             control={form.control}
