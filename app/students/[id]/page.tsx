@@ -46,9 +46,6 @@ export default async function StudentById({
           <Card>
             <CardHeader>
               <CardTitle>Информация о студенте</CardTitle>
-              <CardDescription>
-                Информация о студенте и его долги.
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-6">
@@ -115,7 +112,8 @@ export default async function StudentById({
             <CardHeader>
               <CardTitle>Долги студента</CardTitle>
               <CardDescription>
-                Долги студента и пересдачи по этим дисциплинам.
+                По умолчанию отображаются только те долги студента, которые
+                относятся к вашей кафедре.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -133,7 +131,7 @@ export default async function StudentById({
                   </div>
                 ))
               ) : (
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Долгов нет или у вас нет прав, чтобы просматривать их.
                 </p>
               )}

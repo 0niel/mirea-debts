@@ -4,7 +4,11 @@ import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { UserPermissionsManager } from "./lib/user-permissions-manager"
 
 const isEmployeesOnlyPage = (pathname: string) => {
-  return pathname === "/dashboard" || pathname === "/add"
+  return (
+    pathname.includes("/dashboard") ||
+    pathname.includes("/add") ||
+    pathname.includes("/students")
+  )
 }
 
 export const config = {
@@ -16,8 +20,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - service-worker.js (service worker file)
      */
-    "/((?!api|auth|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|auth|_next/static|_next/image|favicon.ico|service-worker.js).*)",
   ],
 }
 

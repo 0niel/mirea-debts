@@ -11,10 +11,10 @@ import TelegramApi from "@/lib/telegram-api"
 import { cn } from "@/lib/utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
+import { RetakesTable } from "../../components/RetakesTable"
 import DebtsCard from "./DebtsCard"
 import { OnlineEduDisciplinesCard } from "./OnlineEduDisciplinesCard"
 import { ResourceCard } from "./ResourceCard"
-import { RetakesTable } from "../../components/RetakesTable"
 import { TelegramConnectionCard } from "./TelegramConnectionCard"
 
 export const dynamic = "force-dynamic"
@@ -47,7 +47,7 @@ export default async function Student() {
           </p>
         </div>
       </div>
-      
+
       <div className="space-y-4">
         {/* <YearDebtAlert /> */}
         <div className="grid gap-4 md:grid-cols-2">

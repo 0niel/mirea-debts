@@ -17,7 +17,7 @@ export default async function Students() {
         <h2 className="text-3xl font-bold tracking-tight">Студенты</h2>
       </div>
       <div className="space-y-4">
-        <DataTable data={[]} columns={columns} onFilter={(value) => {}} />
+        {/* <DataTable data={[]} columns={columns} onFilter={(value) => {}} /> */}
       </div>
     </>
   )

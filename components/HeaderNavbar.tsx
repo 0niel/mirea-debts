@@ -10,6 +10,34 @@ import { useSupabase } from "@/lib/supabase/supabase-provider"
 import { UserPermissionsManager } from "@/lib/user-permissions-manager"
 import { cn } from "@/lib/utils"
 
+import { MobileNav } from "./MobileNav"
+
+const studentLinks = [
+  {
+    href: "/student",
+    title: "Обзор",
+  },
+]
+
+const employeeLinks = [
+  {
+    href: "/dashboard",
+    title: "Обзор",
+  },
+  {
+    href: "/add",
+    title: "Создание",
+  },
+  {
+    href: "/employees",
+    title: "Сотрудники",
+  },
+  {
+    href: "/students",
+    title: "Студенты",
+  },
+]
+
 export function HeaderNavbar({
   className,
   ...props
@@ -17,11 +45,6 @@ export function HeaderNavbar({
   const pathName = usePathname()!
 
   const checkPath = (path: string) => pathName.startsWith(path)
-
-  const isDashboardPage = checkPath("/dashboard")
-  const isAddPage = checkPath("/add")
-  const isEditPage = checkPath("/edit")
-  const isEmployeesPage = checkPath("/employees")
 
   const { supabase } = useSupabase()
 
@@ -43,44 +66,48 @@ export function HeaderNavbar({
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
-      <Image src="/gerb.png" alt="Logo" width={40} height={40} />
-      <Link
-        href={permissions?.isEmployee() ? "/dashboard" : "/student"}
-        className={cn(
-          "text-sm font-medium transition-colors hover:text-primary",
-          {
-            "text-muted-foreground": !isDashboardPage,
-          }
+      <div className="block sm:hidden">
+        {permissions?.isEmployee() ? (
+          <MobileNav links={employeeLinks} />
+        ) : (
+          <MobileNav links={studentLinks} />
         )}
-      >
-        Обзор
-      </Link>
-      {permissions?.isEmployee() && (
-        <Link
-          href="/add"
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
-            {
-              "text-muted-foreground": !isAddPage,
-            }
-          )}
-        >
-          Создание
-        </Link>
-      )}
-      {permissions?.isEmployee() && (
-        <Link
-          href="/employees"
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
-            {
-              "text-muted-foreground": !isEmployeesPage,
-            }
-          )}
-        >
-          Сотрудники
-        </Link>
-      )}
+      </div>
+      <Image src="/gerb.png" alt="Logo" width={40} height={40} />
+
+      <div className="hidden sm:flex sm:space-x-4 lg:space-x-6">
+        {permissions?.isEmployee() &&
+          employeeLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                {
+                  "text-muted-foreground": !checkPath(item.href),
+                }
+              )}
+            >
+              {item.title}
+            </Link>
+          ))}
+
+        {permissions?.isStudent() &&
+          studentLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                {
+                  "text-muted-foreground": !checkPath(item.href),
+                }
+              )}
+            >
+              {item.title}
+            </Link>
+          ))}
+      </div>
     </nav>
   )
 }
