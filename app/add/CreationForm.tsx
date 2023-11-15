@@ -116,6 +116,7 @@ function DatePicker({
           <Calendar
             mode="single"
             initialFocus
+            locale={ru}
             selected={selected}
             onSelect={setSelected}
             disabled={(date) => date < new Date()}

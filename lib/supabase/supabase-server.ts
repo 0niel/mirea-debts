@@ -29,7 +29,7 @@ export async function getStatistics() {
   try {
     const { data: statistics } = await supabase
       .schema("rtu_mirea")
-      .from("statistics")
+      .from("analytics")
       .select("*")
       .throwOnError()
     return statistics
