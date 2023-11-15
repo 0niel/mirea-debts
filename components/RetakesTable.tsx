@@ -31,17 +31,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function SelfRetakesTable({
+export function RetakesTable({
   retakes,
+  self,
 }: {
   retakes: Database["rtu_mirea"]["Tables"]["retakes"]["Row"][]
+  self?: boolean
 }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Твои пересдачи</CardTitle>
+        <CardTitle>{self ? "Твои пересдачи" : "Пересдачи"}</CardTitle>
         <CardDescription>
-          Список актуальный пересдач для твоих задолженностей.
+          {self ? "Список твоих пересдач." : "Список актуальных пересдач."}
         </CardDescription>
       </CardHeader>
 

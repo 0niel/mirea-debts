@@ -254,3 +254,79 @@ export async function searchEmployeesByName(name: string) {
     return null
   }
 }
+
+export async function getStudentById(id: string) {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .from("students")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .throwOnError()
+    return data
+  } catch (error) {
+    console.error("[getStudentById] Error:", error)
+    return null
+  }
+}
+
+export async function getStudentDebtsById(id: string) {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .from("debts_disciplines")
+      .select("*")
+      .eq("student_uuid", id)
+      .throwOnError()
+
+    return data
+  } catch (error) {
+    console.error("[getStudentDebtsById] Error:", error)
+    return null
+  }
+}
+
+export async function getStudentRetakesById(id: string) {
+  const supabase = createServerSupabaseClient()
+
+  try {
+    const { data: debtsDisciplines } = await supabase
+      .schema("rtu_mirea")
+      .from("debts_disciplines")
+      .select("*")
+      .eq("student_uuid", id)
+      .throwOnError()
+
+    if (!debtsDisciplines) return null
+
+    const retakes = await Promise.all(
+      debtsDisciplines.map(async (discipline) => {
+        try {
+          const { data } = await supabase
+            .schema("rtu_mirea")
+            .from("retakes")
+            .select("*")
+            .eq("discipline", discipline.name)
+            .order("date", { ascending: true })
+            // Only active retakes
+            .filter("date", "gte", new Date().toISOString())
+            .throwOnError()
+          return data ?? []
+        } catch (error) {
+          console.error("[getAllRetakesByDebtsDisciplines] Error:", error)
+          return []
+        }
+      })
+    )
+
+    return retakes.flat().filter((retake) => retake !== null)
+  } catch (error) {
+    console.error("[getStudentRetakesById] Error:", error)
+    return null
+  }
+}

@@ -11,10 +11,10 @@ import TelegramApi from "@/lib/telegram-api"
 import { cn } from "@/lib/utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
+import { RetakesTable } from "../../components/SelfRetakesTable"
 import DebtsCard from "./DebtsCard"
 import { OnlineEduDisciplinesCard } from "./OnlineEduDisciplinesCard"
 import { ResourceCard } from "./ResourceCard"
-import { SelfRetakesTable } from "./SelfRetakesTable"
 import { TelegramConnectionCard } from "./TelegramConnectionCard"
 
 export const dynamic = "force-dynamic"
@@ -61,7 +61,7 @@ export default async function Student() {
           </div>
         </div>
 
-        <SelfRetakesTable retakes={retakes} />
+        <RetakesTable retakes={retakes} />
       </div>
 
       <div className="mt-6 space-y-4">

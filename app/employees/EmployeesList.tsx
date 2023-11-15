@@ -56,6 +56,7 @@ export function EmployeesList({
 
         employees = data ?? []
       } else {
+        if (searchQuery.length < 3) return []
         const { data } = await supabase
           .schema("rtu_mirea")
           .rpc("search_employees_by_name", {
