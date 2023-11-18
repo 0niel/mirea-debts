@@ -36,7 +36,7 @@
 - [Next.js 14 & App Router ](https://nextjs.org)
 - [supabase-js](https://supabase.com/docs/reference/javascript)
 - [Supabase Auth](https://supabase.com/auth)
-- Стилизировано с [Tailwind CSS](https://tailwindcss.com) и [shadcn ui](https://tailwindcss.com](https://ui.shadcn.com/)
+- Стилизировано с [Tailwind CSS](https://tailwindcss.com) и [shadcn ui](https://ui.shadcn.com/)
 
 
 ## Скриншоты
