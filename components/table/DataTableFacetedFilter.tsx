@@ -29,15 +29,21 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string
     icon?: React.ComponentType<{ className?: string }>
   }[]
+  setSelectedOptions?: (selectedOptions: string[]) => void
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  setSelectedOptions,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues()
   const selectedValues = new Set(column?.getFilterValue() as string[])
+
+  React.useEffect(() => {
+    setSelectedOptions?.(Array.from(selectedValues))
+  }, [selectedValues])
 
   return (
     <Popover>

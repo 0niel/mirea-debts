@@ -1,19 +1,68 @@
 "use client"
 
+import Link from "next/link"
+import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 
 import { Database } from "@/lib/supabase/db-types"
+import { useSupabase } from "@/lib/supabase/supabase-provider"
+import { Skeleton } from "@/components/ui/skeleton"
 import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader"
 
+const StudentDebts = ({ row }: { row: any }) => {
+  const { supabase } = useSupabase()
+
+  const { data, error, isLoading } = useQuery(
+    ["debts_disciplines", row.getValue("id")],
+    async () => {
+      const { data } = await supabase
+        .schema("rtu_mirea")
+        .from("debts_disciplines")
+        .select("name")
+        .eq("student_uuid", row.getValue("id"))
+
+      return data ?? []
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
+  )
+  return (
+    <div className="flex flex-col space-y-2">
+      {isLoading ? (
+        <Skeleton className="w-[300px]" />
+      ) : (
+        data?.map((debt: any) => (
+          <span className="truncate font-medium">{debt.name}</span>
+        ))
+      )}
+    </div>
+  )
+}
+
 export const columns: ColumnDef<
-  Database["rtu_mirea"]["Tables"]["students"]["Row"]
+  Database["rtu_mirea"]["Tables"]["students"]["Row"] & {
+    debts_disciplines: string[]
+  }
 >[] = [
   {
     accessorKey: "id",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Id" />
     ),
-    cell: ({ row }) => <div className="w-[300px]">{row.getValue("id")}</div>,
+    cell: ({ row }) => (
+      <div className="w-[300px]">
+        <Link
+          href={`/students/${row.getValue("id")}`}
+          className="cursor-pointer"
+          target="_blank"
+        >
+          <span className="truncate font-medium text-blue-500">
+            {row.getValue("id")}
+          </span>
+        </Link>
+      </div>
+    ),
     enableSorting: false,
     enableHiding: false,
   },
@@ -31,19 +80,6 @@ export const columns: ColumnDef<
     },
   },
   {
-    accessorKey: "first_name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Имя" />
-    ),
-    cell: ({ row }) => {
-      return (
-        <span className="truncate font-medium">
-          {row.getValue("first_name")}
-        </span>
-      )
-    },
-  },
-  {
     accessorKey: "last_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Фамилия" />
@@ -56,6 +92,20 @@ export const columns: ColumnDef<
       )
     },
   },
+  {
+    accessorKey: "first_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Имя" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <span className="truncate font-medium">
+          {row.getValue("first_name")}
+        </span>
+      )
+    },
+  },
+
   {
     accessorKey: "second_name",
     header: ({ column }) => (
@@ -93,6 +143,16 @@ export const columns: ColumnDef<
           {row.getValue("institute")}
         </span>
       )
+    },
+  },
+  {
+    accessorKey: "debts_disciplines",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Задолженности" />
+    ),
+
+    cell: ({ row }) => {
+      return <StudentDebts row={row} />
     },
   },
 ]

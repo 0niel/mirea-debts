@@ -12,7 +12,7 @@ import { CustomTooltip } from "./CustomTooltip"
 export function DebtorsPercentageByInstitutesChartCard({
   statistics,
 }: {
-  statistics: Database["rtu_mirea"]["Tables"]["statistics"]["Row"][]
+  statistics: Database["rtu_mirea"]["Tables"]["analytics"]["Row"][]
 }) {
   const byInstitutes =
     (statistics[statistics.length - 1]

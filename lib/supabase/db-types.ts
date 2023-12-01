@@ -652,12 +652,77 @@ export interface Database {
           }
         ]
       }
+      test_tenant: {
+        Row: {
+          details: string | null
+          id: number
+        }
+        Insert: {
+          details?: string | null
+          id?: number
+        }
+        Update: {
+          details?: string | null
+          id?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      debts_cache: {
+        Row: {
+          exists: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      gtrgm_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: {
+          "": unknown
+        }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      set_limit: {
+        Args: {
+          "": number
+        }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
     }
     Enums: {
       [_ in never]: never
@@ -668,6 +733,33 @@ export interface Database {
   }
   rtu_mirea: {
     Tables: {
+      analytics: {
+        Row: {
+          by_departments: Json | null
+          by_institutes: Json
+          created_at: string
+          debtors: number
+          debts: number
+          id: number
+        }
+        Insert: {
+          by_departments?: Json | null
+          by_institutes: Json
+          created_at?: string
+          debtors: number
+          debts: number
+          id?: number
+        }
+        Update: {
+          by_departments?: Json | null
+          by_institutes?: Json
+          created_at?: string
+          debtors?: number
+          debts?: number
+          id?: number
+        }
+        Relationships: []
+      }
       debts_disciplines: {
         Row: {
           department: string | null
@@ -695,7 +787,7 @@ export interface Database {
             foreignKeyName: "debts_disciplines_student_uuid_fkey"
             columns: ["student_uuid"]
             referencedRelation: "students"
-            referencedColumns: ["student_uuid"]
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -736,18 +828,21 @@ export interface Database {
       extended_permissions: {
         Row: {
           created_at: string
+          department: string | null
           id: number
           role: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          department?: string | null
           id?: number
           role: string
           user_id: string
         }
         Update: {
           created_at?: string
+          department?: string | null
           id?: number
           role?: string
           user_id?: string
@@ -880,7 +975,7 @@ export interface Database {
             foreignKeyName: "social_networks_student_id_fkey"
             columns: ["student_id"]
             referencedRelation: "students"
-            referencedColumns: ["student_uuid"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "social_networks_user_id_fkey"
@@ -890,30 +985,6 @@ export interface Database {
           }
         ]
       }
-      statistics: {
-        Row: {
-          by_institutes: Json
-          created_at: string
-          debtors: number
-          debts: number
-          id: number
-        }
-        Insert: {
-          by_institutes: Json
-          created_at?: string
-          debtors: number
-          debts: number
-          id?: number
-        }
-        Update: {
-          by_institutes?: Json
-          created_at?: string
-          debtors?: number
-          debts?: number
-          id?: number
-        }
-        Relationships: []
-      }
       students: {
         Row: {
           academic_email: string | null
@@ -921,13 +992,13 @@ export interface Database {
           direction_code: string | null
           email: string | null
           first_name: string
-          id: number
+          id: string
           institute: string | null
           last_name: string
           personal_number: string | null
           second_name: string | null
           status: string | null
-          student_uuid: string
+          updated_at: string | null
         }
         Insert: {
           academic_email?: string | null
@@ -935,13 +1006,13 @@ export interface Database {
           direction_code?: string | null
           email?: string | null
           first_name: string
-          id?: number
+          id: string
           institute?: string | null
           last_name: string
           personal_number?: string | null
           second_name?: string | null
           status?: string | null
-          student_uuid: string
+          updated_at?: string | null
         }
         Update: {
           academic_email?: string | null
@@ -949,13 +1020,46 @@ export interface Database {
           direction_code?: string | null
           email?: string | null
           first_name?: string
-          id?: number
+          id?: string
           institute?: string | null
           last_name?: string
           personal_number?: string | null
           second_name?: string | null
           status?: string | null
-          student_uuid?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      test: {
+        Row: {
+          discipline: string | null
+          discipline_guid: string | null
+          exam_type: string | null
+          id: number
+          labor: number | null
+          mark_coef: number | null
+          student_guid: string | null
+          term: number | null
+        }
+        Insert: {
+          discipline?: string | null
+          discipline_guid?: string | null
+          exam_type?: string | null
+          id?: number
+          labor?: number | null
+          mark_coef?: number | null
+          student_guid?: string | null
+          term?: number | null
+        }
+        Update: {
+          discipline?: string | null
+          discipline_guid?: string | null
+          exam_type?: string | null
+          id?: number
+          labor?: number | null
+          mark_coef?: number | null
+          student_guid?: string | null
+          term?: number | null
         }
         Relationships: []
       }
@@ -970,6 +1074,12 @@ export interface Database {
         }
         Returns: number
       }
+      get_debtors_count: {
+        Args: {
+          _department?: string
+        }
+        Returns: number
+      }
       get_debts_by_institute: {
         Args: {
           _institute: string
@@ -980,15 +1090,23 @@ export interface Database {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      get_expelled_by_institute: {
+        Args: {
+          _institute: string
+        }
+        Returns: number
+      }
       get_students_by_institute: {
         Args: {
           _institute: string
         }
         Returns: number
       }
-      get_unique_debtors_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
+      get_unique_academic_groups_by_department: {
+        Args: {
+          _department: string
+        }
+        Returns: string[]
       }
       get_unique_disciplines: {
         Args: Record<PropertyKey, never>
@@ -1010,6 +1128,10 @@ export interface Database {
         }
         Returns: string
       }
+      is_employee: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       search_employees_by_name: {
         Args: {
           _name: string
@@ -1021,6 +1143,30 @@ export interface Database {
           post: string
           updated_at: string
           user_id: string | null
+        }[]
+      }
+      search_students: {
+        Args: {
+          _limit: number
+          _offset: number
+          _name?: string
+          _academic_groups?: string[]
+          _debts_disciplines?: string[]
+          _department?: string
+        }
+        Returns: {
+          academic_email: string | null
+          academic_group: string | null
+          direction_code: string | null
+          email: string | null
+          first_name: string
+          id: string
+          institute: string | null
+          last_name: string
+          personal_number: string | null
+          second_name: string | null
+          status: string | null
+          updated_at: string | null
         }[]
       }
     }

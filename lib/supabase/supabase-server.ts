@@ -330,3 +330,20 @@ export async function getStudentRetakesById(id: string) {
     return null
   }
 }
+
+export async function getUniqueGroupsByDepartment(department: string) {
+  const supabase = createServerSupabaseClient()
+  try {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .rpc("get_unique_academic_groups_by_department", {
+        _department: department,
+      })
+      .throwOnError()
+    return data as unknown as string[]
+  } catch (error) {
+    console.error("[getUniqueGroupsByDepartment] Error:", error)
+    return null
+  }
+}
+

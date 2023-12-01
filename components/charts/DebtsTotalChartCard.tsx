@@ -10,7 +10,7 @@ import { CustomTooltip } from "./CustomTooltip"
 export function DebtsTotalChartCard({
   statistics,
 }: {
-  statistics: Database["rtu_mirea"]["Tables"]["statistics"]["Row"][]
+  statistics: Database["rtu_mirea"]["Tables"]["analytics"]["Row"][]
 }) {
   const data = statistics
     .sort((a, b) => {

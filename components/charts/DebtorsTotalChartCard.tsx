@@ -22,7 +22,7 @@ import { CustomTooltip } from "./CustomTooltip"
 export function DebtorsTotalChartCard({
   statistics,
 }: {
-  statistics: Database["rtu_mirea"]["Tables"]["statistics"]["Row"][]
+  statistics: Database["rtu_mirea"]["Tables"]["analytics"]["Row"][]
 }) {
   const getDebtsAndDebtorsForAllByTime = () => {
     return statistics

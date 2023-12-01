@@ -64,7 +64,7 @@ async function handleTelegramEvent(
     user_id: user.user.id,
     username: message.from.username,
     external_id: message.from.id.toString(),
-    student_id: student?.student_uuid,
+    student_id: student?.id,
   })
 
   await TelegramApi.sendMessage(

@@ -5,6 +5,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
+  TableOptions,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -32,12 +33,26 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onFilter?: (value: string) => void
+  facetedFilters?: {
+    label: string
+    column: string
+    options: {
+      label: string
+      value: string
+      icon?: React.ComponentType<{ className?: string }>
+    }[]
+  }[]
+  tableOptions?: Partial<TableOptions<TData>>
+  onFacetedFilterChange?: (column: string, selectedOptions: string[]) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onFilter,
+  facetedFilters,
+  tableOptions,
+  onFacetedFilterChange,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -67,11 +82,17 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    ...tableOptions,
   })
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} onFilter={onFilter} />
+      <DataTableToolbar
+        table={table}
+        onFilter={onFilter}
+        facetedFilters={facetedFilters}
+        onFacetedFilterChange={onFacetedFilterChange}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
