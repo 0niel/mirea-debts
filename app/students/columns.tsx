@@ -68,6 +68,9 @@ export const columns: ColumnDef<
   },
   {
     accessorKey: "academic_group",
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Группа" />
     ),
@@ -147,10 +150,12 @@ export const columns: ColumnDef<
   },
   {
     accessorKey: "debts_disciplines",
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Задолженности" />
     ),
-
     cell: ({ row }) => {
       return <StudentDebts row={row} />
     },
