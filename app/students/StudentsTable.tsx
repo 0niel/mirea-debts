@@ -54,7 +54,7 @@ export default function StudentsTable({
       const { data } = await supabase
         .schema("rtu_mirea")
         .rpc("search_students", {
-          _limit: 1000,
+          _limit: 2000,
           _offset: 0,
           _department: department ?? undefined,
           _academic_groups:
@@ -126,7 +126,7 @@ export default function StudentsTable({
         }
       }}
       tableOptions={{
-        pageCount: Math.ceil(length ?? 0 / 10),
+        pageCount: Math.ceil(data?.length ?? 0 / 10),
       }}
     />
   )
