@@ -11,7 +11,6 @@ import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader"
 
 const StudentDebts = ({ row }: { row: any }) => {
   const { supabase } = useSupabase()
-
   const { data, error, isLoading } = useQuery(
     ["debts_disciplines", row.getValue("id")],
     async () => {
@@ -33,7 +32,7 @@ const StudentDebts = ({ row }: { row: any }) => {
         <Skeleton className="w-[300px]" />
       ) : (
         data?.map((debt: any) => (
-          <span className="truncate font-medium">{debt.name}</span>
+          <span key={debt.name} className="truncate font-medium">{debt.name}</span>
         ))
       )}
     </div>
@@ -134,6 +133,7 @@ export const columns: ColumnDef<
         </span>
       )
     },
+    enableHiding: false,
   },
   {
     accessorKey: "institute",
@@ -151,7 +151,7 @@ export const columns: ColumnDef<
   {
     accessorKey: "debts_disciplines",
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      return value
     },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Задолженности" />

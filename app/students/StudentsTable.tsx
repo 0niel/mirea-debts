@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useQuery } from "@tanstack/react-query"
-import { TagIcon, User2Icon } from "lucide-react"
+import { User2Icon } from "lucide-react"
 
 import { useSupabase } from "@/lib/supabase/supabase-provider"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -54,7 +54,7 @@ export default function StudentsTable({
       const { data } = await supabase
         .schema("rtu_mirea")
         .rpc("search_students", {
-          _limit: 10,
+          _limit: 1000,
           _offset: 0,
           _department: department ?? undefined,
           _academic_groups:
@@ -64,7 +64,6 @@ export default function StudentsTable({
           _name: searchQuery.length > 0 ? searchQuery : undefined,
         })
         .throwOnError()
-
       return (data ?? [])
         .filter((student) => student)
         .map((student) => ({
