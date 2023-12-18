@@ -41,7 +41,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   const facets = column?.getFacetedUniqueValues()
   const selectedValues = React.useMemo(() => {
     return new Set(column?.getFilterValue() as string[]);
-  }, [column]);
+  }, [column?.getFilterValue()]);
 
   React.useEffect(() => {
     setSelectedOptions?.(Array.from(selectedValues))
