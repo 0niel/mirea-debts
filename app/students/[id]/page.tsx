@@ -70,9 +70,9 @@ export default async function StudentById({
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" className="ml-auto">
-                    Отправить сообщение
-                  </Button>
+                  {/*<Button variant="outline" className="ml-auto">*/}
+                  {/*  Отправить сообщение*/}
+                  {/*</Button>*/}
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">

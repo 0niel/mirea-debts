@@ -63,7 +63,6 @@ export const columns: ColumnDef<
       </div>
     ),
     enableSorting: false,
-    enableHiding: false,
   },
   {
     accessorKey: "academic_group",
