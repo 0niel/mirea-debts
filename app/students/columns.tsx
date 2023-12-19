@@ -32,7 +32,9 @@ const StudentDebts = ({ row }: { row: any }) => {
         <Skeleton className="w-[300px]" />
       ) : (
         data?.map((debt: any) => (
-          <span key={debt.name} className="truncate font-medium">{debt.name}</span>
+          <span key={debt.name} className="truncate font-medium">
+            {debt.name}
+          </span>
         ))
       )}
     </div>

@@ -346,4 +346,3 @@ export async function getUniqueGroupsByDepartment(department: string) {
     return null
   }
 }
-

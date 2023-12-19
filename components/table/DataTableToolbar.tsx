@@ -22,6 +22,7 @@ interface DataTableToolbarProps<TData> {
     }[]
   }[]
   onFacetedFilterChange?: (column: string, selectedOptions: string[]) => void
+  department: string
 }
 
 export function DataTableToolbar<TData>({
@@ -29,6 +30,7 @@ export function DataTableToolbar<TData>({
   onFilter,
   facetedFilters,
   onFacetedFilterChange,
+  department,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
 
@@ -68,7 +70,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <DataTableViewOptions table={table} department={department} />
     </div>
   )
 }

@@ -102,6 +102,7 @@ export default function StudentsTable({
   ) : (
     <DataTable
       data={data ?? []}
+      department={department!}
       columns={columns}
       onFilter={(value) => {
         setSearchQuery(value)

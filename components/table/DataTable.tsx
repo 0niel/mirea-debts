@@ -44,6 +44,7 @@ interface DataTableProps<TData, TValue> {
   }[]
   tableOptions?: Partial<TableOptions<TData>>
   onFacetedFilterChange?: (column: string, selectedOptions: string[]) => void
+  department: string
 }
 
 export function DataTable<TData, TValue>({
@@ -53,6 +54,7 @@ export function DataTable<TData, TValue>({
   facetedFilters,
   tableOptions,
   onFacetedFilterChange,
+  department,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -92,6 +94,7 @@ export function DataTable<TData, TValue>({
         onFilter={onFilter}
         facetedFilters={facetedFilters}
         onFacetedFilterChange={onFacetedFilterChange}
+        department={department}
       />
       <div className="rounded-md border">
         <Table>

@@ -1,6 +1,3 @@
-
-
-
 <a href="https://debts.mirea.ru/">
   <img alt="Скриншот" src="https://github.com/0niel/mirea-debts/assets/51058739/5f137389-5148-444f-bbfa-6e53913f0bd9">
   <h1 align="center">debts.mirea.ru</h1>
@@ -19,7 +16,6 @@
 </p>
 <br/>
 
-
 ## Возможности
 
 - **Гибкая система прав**:
@@ -33,11 +29,11 @@
 - **Аналитика для сотрудников**.
 
 ## Технологии
+
 - [Next.js 14 & App Router ](https://nextjs.org)
 - [supabase-js](https://supabase.com/docs/reference/javascript)
 - [Supabase Auth](https://supabase.com/auth)
 - Стилизировано с [Tailwind CSS](https://tailwindcss.com) и [shadcn ui](https://ui.shadcn.com/)
-
 
 ## Скриншоты
 
@@ -61,11 +57,9 @@
     <img src="https://github.com/0niel/mirea-debts/assets/51058739/81461b77-9715-4cf8-9c31-eab325e5f3cd"  />
 </details>
 
-
 ## Демо
 
 Вы можете просмотреть полностью работающий сайт по адресу [debts.mirea.ru](https://debts.mirea.ru).
-
 
 ## Локальный запуск
 
