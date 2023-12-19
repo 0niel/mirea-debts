@@ -32,12 +32,22 @@ export async function GET(request: NextRequest) {
     "Задолженности",
   ])
 
-  students?.forEach(async (student) => {
+  const promises = students!.map(async (student) => {
     const debts = await getDebtsByStudent(student.id, supabase)
-    debts?.forEach((debt) => {
-      sheet.addRow([student.id, debt.name])
-    })
+    sheet.addRow([
+      student.id,
+      student.academic_group,
+      student.last_name,
+      student.first_name,
+      student.second_name,
+      student.personal_number,
+      student.institute,
+      debts,
+    ])
   })
+
+  // Wait for all promises to resolve before continuing
+  await Promise.all(promises)
 
   const buffer = await workbook.xlsx.writeBuffer()
   const today = new Date().toISOString().slice(0, 10)
@@ -75,5 +85,5 @@ async function getDebtsByStudent(
     .from("debts_disciplines")
     .select("name")
     .eq("student_uuid", student_id)
-  return debts
+  return debts?.map((debt) => debt.name).join(",")
 }
