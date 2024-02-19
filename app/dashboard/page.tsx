@@ -1,14 +1,11 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import { redirect } from "next/navigation"
 
-import { getSession, getStatistics } from "@/lib/supabase/supabase-server"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ChartsCards } from "@/components/charts/ChartsCards"
 import { RecentActivity } from "@/app/dashboard/RecentActivity"
 import SelfRetakesTable from "@/app/dashboard/SelfRetakesTable"
-
-import { ChartsCards } from "../../components/charts/ChartsCards"
 
 export const dynamic = "force-dynamic"
 

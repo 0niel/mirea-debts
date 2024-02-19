@@ -1,14 +1,17 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { User2Icon } from "lucide-react"
 
+import { Database } from "@/lib/supabase/db-types"
 import { useSupabase } from "@/lib/supabase/supabase-provider"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DataTable } from "@/components/table/DataTable"
 
 import { columns } from "./columns"
+
+type Student = Database["rtu_mirea"]["Tables"]["students"]["Row"]
 
 export default function StudentsTable({
   availableGroups,
@@ -39,7 +42,89 @@ export default function StudentsTable({
     string[]
   >([])
 
+  const [count, setCount] = useState(0)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [searchQuery, setSearchQuery] = React.useState("")
+
+  // const {
+  //   data: employees,
+  //   error,
+  //   isLoading,
+  // } = useQuery(
+  //   [
+  //     "students",
+  //     page,
+  //     pageSize,
+  //     availableGroups,
+  //     availableDisciplines,
+  //     selectedGroups,
+  //     selectedDisciplines,
+  //     searchQuery,
+  //   ],
+  //   async () => {
+  //     let students
+  //
+  //     if (!searchQuery) {
+  //       const { data } = (await supabase
+  //         .schema("rtu_mirea")
+  //         .from("students")
+  //         .select("*")
+  //         .range((page - 1) * pageSize, page * pageSize - 1)
+  //         .throwOnError()) as unknown as { data: Student[] }
+  //
+  //       students = data ?? []
+  //     } else {
+  //       if (searchQuery.length < 3) return []
+  //       const { data } = await supabase
+  //         .schema("rtu_mirea")
+  //         .rpc("search_students", {
+  //           _limit: pageSize,
+  //           _offset: (page - 1) * pageSize,
+  //           _department: department ?? undefined,
+  //           _academic_groups:
+  //             selectedGroups.length > 0 ? selectedGroups : undefined,
+  //           _debts_disciplines:
+  //             selectedDisciplines.length > 0 ? selectedDisciplines : undefined,
+  //           _name: searchQuery,
+  //         })
+  //         .throwOnError()
+  //
+  //       if (
+  //         !searchQuery &&
+  //         (selectedGroups.length || selectedDisciplines.length)
+  //       ) {
+  //         const { data } = await supabase
+  //           .schema("rtu_mirea")
+  //           .rpc("search_students", {
+  //             _limit: pageSize,
+  //             _offset: (page - 1) * pageSize,
+  //             _department: department ?? undefined,
+  //             _academic_groups:
+  //               selectedGroups.length > 0 ? selectedGroups : undefined,
+  //             _debts_disciplines:
+  //               selectedDisciplines.length > 0
+  //                 ? selectedDisciplines
+  //                 : undefined,
+  //           })
+  //           .throwOnError()
+  //       }
+  //       students = data ?? []
+  //     }
+  //
+  //     const { count } = await supabase
+  //       .schema("rtu_mirea")
+  //       .from("students")
+  //       .select("id", { count: "exact", head: true })
+  //
+  //     setCount(count ?? 0)
+  //
+  //     return students
+  //   },
+  //   {
+  //     refetchOnWindowFocus: false,
+  //   }
+  // )
 
   const { data, error, isLoading } = useQuery(
     [

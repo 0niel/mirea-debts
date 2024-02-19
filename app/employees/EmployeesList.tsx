@@ -16,6 +16,8 @@ import { EmployeesPagination } from "./EmployeesPagination"
 
 type Employee = Database["rtu_mirea"]["Tables"]["employees"]["Row"]
 type Profile = Database["rtu_mirea"]["Tables"]["profiles"]["Row"]
+type ExtendedPermission =
+  Database["rtu_mirea"]["Tables"]["extended_permissions"]["Row"]
 
 export function EmployeesList({
   department,
@@ -50,7 +52,8 @@ export function EmployeesList({
           .from("employees")
           .select("*")
           .eq("department", department)
-          .order("post", { ascending: false })
+          .order("user_id", { ascending: true })
+          .order("post", { ascending: true })
           .range((page - 1) * pageSize, page * pageSize - 1)
           .throwOnError()) as unknown as { data: Employee[] }
 

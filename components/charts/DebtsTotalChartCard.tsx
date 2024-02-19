@@ -1,26 +1,53 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
 
 import { Database } from "@/lib/supabase/db-types"
+import { StatisticsByDepartments } from "@/lib/supabase/statistics-by-departments-type"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { CustomTooltip } from "./CustomTooltip"
 
 export function DebtsTotalChartCard({
   statistics,
+  department,
 }: {
   statistics: Database["rtu_mirea"]["Tables"]["analytics"]["Row"][]
+  department: string
 }) {
-  const data = statistics
-    .sort((a, b) => {
-      return Date.parse(a.created_at) - Date.parse(b.created_at)
-    })
-    .map((stat) => ({
-      debtors: stat.debtors,
-      debts: stat.debts,
-      name: stat.created_at.split("T")[0].split("-").reverse().join("."),
-    }))
+  const [data, setData] = useState([{ debtors: 0, debts: 0, name: "" }])
+
+  useEffect(() => {
+    const getData = () => {
+      return statistics
+        .sort((a, b) => {
+          return Date.parse(a.created_at) - Date.parse(b.created_at)
+        })
+        .map((stat) => {
+          const byDepartments = stat.by_departments as StatisticsByDepartments
+          const debtors = byDepartments?.[department].debtors ?? 0
+          const debts = byDepartments?.[department].debts ?? 0
+          return {
+            debtors,
+            debts,
+            name: stat.created_at.split("T")[0].split("-").reverse().join("."),
+          }
+        })
+    }
+
+    setData(getData())
+  }, [department, statistics])
+
+  // const data = statistics
+  //   .sort((a, b) => {
+  //     return Date.parse(a.created_at) - Date.parse(b.created_at)
+  //   })
+  //   .map((stat) => ({
+  //     debtors: stat.debtors,
+  //     debts: stat.debts,
+  //     name: stat.created_at.split("T")[0].split("-").reverse().join("."),
+  //   }))
 
   return (
     <Card>

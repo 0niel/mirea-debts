@@ -1,18 +1,6 @@
-import { cookies } from "next/headers"
-import Link from "next/link"
 import { redirect } from "next/navigation"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 
 import { getSession } from "@/lib/supabase/supabase-server"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { RecentActivity } from "@/app/dashboard/RecentActivity"
 
 export const dynamic = "force-dynamic"
 

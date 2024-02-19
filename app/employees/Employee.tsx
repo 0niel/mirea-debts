@@ -1,3 +1,4 @@
+import React, { useState } from "react"
 import { ChevronDownIcon } from "@radix-ui/react-icons"
 
 import { Database } from "@/lib/supabase/db-types"
@@ -35,6 +36,12 @@ const getName = (employee: Employee & { profile?: Profile }) => {
 }
 
 export function Employee({ employee }: EmployeeProps) {
+  const [role, setRole] = useState("Просмотр")
+
+  const handleRoleChange = (role: string) => {
+    setRole(role)
+  }
+
   return (
     <div className="flex items-center justify-between space-x-4">
       <div className="flex items-center space-x-4">
@@ -57,7 +64,7 @@ export function Employee({ employee }: EmployeeProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="ml-auto">
-            Админ{" "}
+            {role}
             <ChevronDownIcon className="ml-2 h-4 w-4 text-muted-foreground" />
           </Button>
         </PopoverTrigger>
@@ -67,19 +74,28 @@ export function Employee({ employee }: EmployeeProps) {
             <CommandList>
               <CommandEmpty>Роли не найдены.</CommandEmpty>
               <CommandGroup>
-                <CommandItem className="teamaspace-y-1 flex flex-col items-start px-4 py-2">
+                <CommandItem
+                  className="teamaspace-y-1 flex flex-col items-start px-4 py-2"
+                  onSelect={() => handleRoleChange("Просмотр")}
+                >
                   <p>Просмотр</p>
                   <p className="text-sm text-muted-foreground">
                     Может просматривать пересдачи и статистику по кафедре.
                   </p>
                 </CommandItem>
-                <CommandItem className="teamaspace-y-1 flex flex-col items-start px-4 py-2">
+                <CommandItem
+                  className="teamaspace-y-1 flex flex-col items-start px-4 py-2"
+                  onSelect={() => handleRoleChange("Редактор")}
+                >
                   <p>Редактор</p>
                   <p className="text-sm text-muted-foreground">
                     Может создавать пересдачи.
                   </p>
                 </CommandItem>
-                <CommandItem className="teamaspace-y-1 flex flex-col items-start px-4 py-2">
+                <CommandItem
+                  className="teamaspace-y-1 flex flex-col items-start px-4 py-2"
+                  onSelect={() => handleRoleChange("Админ")}
+                >
                   <p>Админ</p>
                   <p className="text-sm text-muted-foreground">
                     Может управлять доступом для сотрудников кафедры.
