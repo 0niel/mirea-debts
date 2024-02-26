@@ -1,7 +1,9 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { ChevronDownIcon } from "@radix-ui/react-icons"
 
 import { Database } from "@/lib/supabase/db-types"
+import { useSupabase } from "@/lib/supabase/supabase-provider"
+import { roleMapper } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,6 +26,7 @@ type Profile = Database["rtu_mirea"]["Tables"]["profiles"]["Row"]
 export interface EmployeeProps {
   employee: Employee & {
     profile?: Profile
+    role?: string
   }
 }
 
@@ -36,10 +39,33 @@ const getName = (employee: Employee & { profile?: Profile }) => {
 }
 
 export function Employee({ employee }: EmployeeProps) {
+  const { supabase } = useSupabase()
   const [role, setRole] = useState("Просмотр")
 
-  const handleRoleChange = (role: string) => {
+  useEffect(() => {
+    setRole(roleMapper.get(employee.role as string) || "Просмотр")
+  }, [employee.role])
+
+  const handleRoleChange = async (role: string) => {
     setRole(role)
+
+    role === "Просмотр" &&
+      (await supabase
+        .schema("rtu_mirea")
+        .from("extended_permissions")
+        .delete()
+        .eq("user_id", employee.user_id!))
+
+    role !== "Просмотр" &&
+      (await supabase
+        .schema("rtu_mirea")
+        .from("extended_permissions")
+        .upsert({
+          department: employee.department!,
+          human_uuid: employee.human_uuid!,
+          role: role === "Админ" ? "admin" : "editor",
+          user_id: employee.user_id!,
+        }))
   }
 
   return (
@@ -63,7 +89,11 @@ export function Employee({ employee }: EmployeeProps) {
       </div>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="ml-auto">
+          <Button
+            variant="outline"
+            className="ml-auto"
+            disabled={!employee.user_id!}
+          >
             {role}
             <ChevronDownIcon className="ml-2 h-4 w-4 text-muted-foreground" />
           </Button>

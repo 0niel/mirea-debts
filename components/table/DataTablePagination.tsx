@@ -17,7 +17,6 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
-
   count?: number
   page?: number
   pageSize?: number

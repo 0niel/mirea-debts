@@ -86,10 +86,29 @@ export function EmployeesList({
         )
       ).map((res) => res.data) as Profile[]
 
+      const permissions = (
+        await Promise.all(
+          employees
+            .filter((employee) => employee.human_uuid)
+            .map((employee) => {
+              return supabase
+                .schema("rtu_mirea")
+                .from("extended_permissions")
+                .select("*")
+                .eq("human_uuid", employee.human_uuid)
+                .maybeSingle()
+            })
+        )
+      ).map((res) => res.data) as ExtendedPermission[]
+
       const res = employees.map((employee) => {
         return {
           ...employee,
           profile: profiles.find((profile) => profile.id === employee.user_id),
+          role: permissions
+            .filter(Boolean)
+            .find((permission) => permission.human_uuid === employee.human_uuid)
+            ?.role,
         }
       })
 
@@ -136,8 +155,8 @@ export function EmployeesList({
                 key={i}
                 className="flex flex-row items-center justify-between"
               >
-                <Skeleton key={i} className="h-10 w-80" />
-                <Skeleton key={i} className="h-10 w-24" />
+                <Skeleton key={i + 1} className="h-10 w-80" />
+                <Skeleton key={i + 2} className="h-10 w-24" />
               </div>
             ))}
 

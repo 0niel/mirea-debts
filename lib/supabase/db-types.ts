@@ -829,6 +829,7 @@ export interface Database {
         Row: {
           created_at: string
           department: string | null
+          human_uuid: string
           id: number
           role: string
           user_id: string
@@ -836,6 +837,7 @@ export interface Database {
         Insert: {
           created_at?: string
           department?: string | null
+          human_uuid: string
           id?: number
           role: string
           user_id: string
@@ -843,6 +845,7 @@ export interface Database {
         Update: {
           created_at?: string
           department?: string | null
+          human_uuid: string
           id?: number
           role?: string
           user_id?: string
@@ -1168,6 +1171,15 @@ export interface Database {
           status: string | null
           updated_at: string | null
         }[]
+      }
+      search_students_count: {
+        Args: {
+          _name?: string
+          _academic_groups?: string[]
+          _debts_disciplines?: string[]
+          _department?: string
+        }
+        Returns: number
       }
     }
     Enums: {

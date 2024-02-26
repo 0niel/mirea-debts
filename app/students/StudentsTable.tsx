@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import { useQuery } from "@tanstack/react-query"
 import { User2Icon } from "lucide-react"
 
@@ -42,89 +42,25 @@ export default function StudentsTable({
     string[]
   >([])
 
-  const [count, setCount] = useState(0)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [count, setCount] = React.useState(0)
+  const [page, setPage] = React.useState(1)
+  const [pageSize, setPageSize] = React.useState(10)
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  // const {
-  //   data: employees,
-  //   error,
-  //   isLoading,
-  // } = useQuery(
-  //   [
-  //     "students",
-  //     page,
-  //     pageSize,
-  //     availableGroups,
-  //     availableDisciplines,
-  //     selectedGroups,
-  //     selectedDisciplines,
-  //     searchQuery,
-  //   ],
-  //   async () => {
-  //     let students
-  //
-  //     if (!searchQuery) {
-  //       const { data } = (await supabase
-  //         .schema("rtu_mirea")
-  //         .from("students")
-  //         .select("*")
-  //         .range((page - 1) * pageSize, page * pageSize - 1)
-  //         .throwOnError()) as unknown as { data: Student[] }
-  //
-  //       students = data ?? []
-  //     } else {
-  //       if (searchQuery.length < 3) return []
-  //       const { data } = await supabase
-  //         .schema("rtu_mirea")
-  //         .rpc("search_students", {
-  //           _limit: pageSize,
-  //           _offset: (page - 1) * pageSize,
-  //           _department: department ?? undefined,
-  //           _academic_groups:
-  //             selectedGroups.length > 0 ? selectedGroups : undefined,
-  //           _debts_disciplines:
-  //             selectedDisciplines.length > 0 ? selectedDisciplines : undefined,
-  //           _name: searchQuery,
-  //         })
-  //         .throwOnError()
-  //
-  //       if (
-  //         !searchQuery &&
-  //         (selectedGroups.length || selectedDisciplines.length)
-  //       ) {
-  //         const { data } = await supabase
-  //           .schema("rtu_mirea")
-  //           .rpc("search_students", {
-  //             _limit: pageSize,
-  //             _offset: (page - 1) * pageSize,
-  //             _department: department ?? undefined,
-  //             _academic_groups:
-  //               selectedGroups.length > 0 ? selectedGroups : undefined,
-  //             _debts_disciplines:
-  //               selectedDisciplines.length > 0
-  //                 ? selectedDisciplines
-  //                 : undefined,
-  //           })
-  //           .throwOnError()
-  //       }
-  //       students = data ?? []
-  //     }
-  //
-  //     const { count } = await supabase
-  //       .schema("rtu_mirea")
-  //       .from("students")
-  //       .select("id", { count: "exact", head: true })
-  //
-  //     setCount(count ?? 0)
-  //
-  //     return students
-  //   },
-  //   {
-  //     refetchOnWindowFocus: false,
-  //   }
-  // )
+  const getCount = async () => {
+    const { data } = await supabase
+      .schema("rtu_mirea")
+      .rpc("search_students_count", {
+        _department: department ?? undefined,
+        _academic_groups:
+          selectedGroups.length > 0 ? selectedGroups : undefined,
+        _debts_disciplines:
+          selectedDisciplines.length > 0 ? selectedDisciplines : undefined,
+        _name: searchQuery.length > 0 ? searchQuery : undefined,
+      })
+      .throwOnError()
+    setCount(data ?? 0)
+  }
 
   const { data, error, isLoading } = useQuery(
     [
@@ -139,8 +75,8 @@ export default function StudentsTable({
       const { data } = await supabase
         .schema("rtu_mirea")
         .rpc("search_students", {
-          _limit: 2000,
-          _offset: 0,
+          _limit: pageSize,
+          _offset: (page - 1) * pageSize,
           _department: department ?? undefined,
           _academic_groups:
             selectedGroups.length > 0 ? selectedGroups : undefined,
@@ -149,6 +85,9 @@ export default function StudentsTable({
           _name: searchQuery.length > 0 ? searchQuery : undefined,
         })
         .throwOnError()
+
+      await getCount()
+
       return (data ?? [])
         .filter((student) => student)
         .map((student) => ({
@@ -161,28 +100,7 @@ export default function StudentsTable({
     }
   )
 
-  const {
-    data: length,
-    error: lengthError,
-    isLoading: lengthIsLoading,
-  } = useQuery(
-    ["length", availableGroups, availableDisciplines],
-    async () => {
-      const { data } = await supabase
-        .schema("rtu_mirea")
-        .rpc("get_debtors_count", {
-          _department: department ?? undefined,
-        })
-        .throwOnError()
-
-      return data
-    },
-    {
-      refetchOnWindowFocus: false,
-    }
-  )
-
-  return lengthIsLoading ? (
+  return isLoading ? (
     <Skeleton className="w-[300px]" />
   ) : (
     <DataTable
@@ -212,7 +130,8 @@ export default function StudentsTable({
         }
       }}
       tableOptions={{
-        pageCount: Math.ceil(data?.length ?? 0 / 10),
+        manualPagination: true,
+        pageCount: Math.ceil(count / pageSize),
       }}
     />
   )
